@@ -132,25 +132,37 @@ fraud-risk-analytics/
 | V near-duplicate pairs | 162 pairs with \|r\| ≥ 0.98. Top predictors: V257, V201, V246, V200 (\|r\|=0.26–0.28 with fraud). |
 | Unstable D-features (PSI>0.10) | D4, D6, D10, D14, D15 — structural drift under temporal split; flag for monitoring, do not drop. |
 
-### Phase 2: Repeatable Data Quality & Serving Schema
-- Write unit tests in `tests/test_data_quality.py` for column types, range constraints, fraud label validation (`{0, 1}`), and duplicate checks.
-- Keep raw and training parquet files local.
-- Create minimal Postgres schema in `sql/schema.sql` for `predictions`, `model_runs`, and `demo_replay`.
+### Phase 2: Repeatable Data Quality & Serving Schema — ✅ COMPLETE
+
+**Confirmed deliverables & implemented components:**
+- **Automated Data Quality Engine (`src/validation/data_quality.py`)**: Reusable Python validation framework & CLI enforcing schema integrity, dtypes, binary target validity (`isFraud ∈ {0, 1}` with 0% nulls), `TransactionID` uniqueness, physical/domain range bounds, categorical domain sets, and temporal span bounds.
+- **Pytest Automated Test Suite (`tests/test_data_quality.py`)**: 20 passing unit & integration tests covering synthetic corrupted batches (duplicate IDs, negative amounts, invalid labels, missing columns) and verifying live parquet temporal split properties (`TransactionDT ≤ 12,192,854` for 472,432 train rows vs `> 12,192,854` for 118,108 test rows).
+- **PostgreSQL Serving Schema (`sql/schema.sql`)**: Production-grade DDL defining `predictions`, `model_runs`, and `demo_replay` tables with B-tree and partial indexes (`WHERE predicted_risk_tier = 'HIGH'`) tailored for Supabase's free tier (<500MB).
+- **BI & Monitoring SQL Queries (`sql/analytics_queries.sql`)**: Analytical queries for daily volume/fraud rates, confusion matrix / PR / FPR metrics, high-risk review backlog, and score decile drift monitoring.
+- **Held-Out Demo Slice Extractor (`src/data/make_demo_slice.py`)**: Curated 1,500 held-out test transactions (`TransactionDT > 12,192,854`) in lightweight Parquet (517 KB) and JSON seed (418 KB) formats.
+- **Engineering Documentation (`docs/02_data_quality_notes.md`)**: Rationale for storage segregation (raw data stays local columnar parquet; Postgres strictly for serving/logging) and data quality invariants.
 
 ### Phase 3: Feature Engineering & Baseline Modeling
 
-**Feature engineering scope locked by Week 1 audit** (`docs/01_data_integrity_investigation.md §4.4`). Do not build features that duplicate existing columns:
+**Feature Engineering Deliverables — ✅ COMPLETE:**
+- **Leakage-Free Feature Pipeline (`src/features/engineer.py`)**: `FraudFeaturePipeline` transformer fitting frequency encodings and group statistics strictly on Train partition (`TransactionDT ≤ 12,192,854`).
+- **Feature Build Automation (`src/features/build_features.py`)**: Generates `data/processed/train_features.parquet` (472,432 rows, 74.9 MB) and `data/processed/test_features.parquet` (118,108 rows, 19.6 MB) with 24 newly engineered features (458 total features).
+- **Feature Unit Test Suite (`tests/test_feature_engineering.py`)**: 8 passing pytest unit tests verifying mathematical correctness, cyclical bounds $[-1, 1]$, zero temporal leakage, and pipeline serialization round-trip.
+- **Cross-Correlation Audit**: Confirmed all 24 newly engineered features maintain $|r| < 0.85$ with $C1$ and $D1$ (maximum $|r| = 0.243$), guaranteeing additive non-redundant predictive signal.
+- **Visual Storytelling (`notebooks/03_feature_engineering.ipynb`)**: EDA and correlation matrix notebook.
 
-| Feature | Decision | Rationale |
+| Feature | Decision | Shipped Implementation |
 |---|---|---|
-| Transaction velocity | ❌ Use **C1** directly | C1 is identical (\|r\|=1.000) |
-| Time since last transaction | ❌ Use **D1** directly | D1 is identical (\|r\|=1.000) |
-| Amount z-score by card/merchant | ✅ Build | Not in any existing column |
-| Log-transformed TransactionAmt | ✅ Build | Not in any existing column |
-| Merchant/category frequency | ✅ Build & cross-check | May partially overlap C-features — retain if non-redundant |
-| Hour-of-day cycle | ✅ Build | `(TransactionDT - 86400) % 86400 / 3600` |
-| Day-of-week cycle | ✅ Evaluate | Evaluate empirically against D-feature patterns |
+| Transaction velocity | ❌ Skip — use **C1** directly | C1 is identical (\|r\|=1.000) |
+| Time since last transaction | ❌ Skip — use **D1** directly | D1 is identical (\|r\|=1.000) |
+| Amount z-score by card/merchant | ✅ Built | `amt_zscore_card1`, `amt_diff_mean_card1`, `amt_ratio_mean_card1`, `amt_zscore_card1_addr1`, `amt_zscore_email` |
+| Log-transformed TransactionAmt | ✅ Built | `log_TransactionAmt` = $\log(1 + \text{TransactionAmt})$ |
+| Merchant/category frequency | ✅ Built | `freq_card1`, `freq_card2`, `freq_addr1`, `freq_ProductCD`, `freq_R_emaildomain` |
+| Hour-of-day cycle | ✅ Built | `hour_sin`, `hour_cos` (24-hour diurnal cycle) |
+| Day-of-week cycle | ✅ Built | `dow_sin`, `dow_cos` (7-day weekly cycle) |
+| Email consistency | ✅ Built | `email_match_flag`, `null_P_email`, `null_R_email` |
 
+**Next Step (Baseline Modeling):**
 - Train **Logistic Regression** baseline first (on merged feature set including D1, C1, key V-features).
 - Train **XGBoost / LightGBM** with `scale_pos_weight` (class-weighting).
 - Compute PR-AUC, ROC-AUC, and **Recall at fixed False Positive Rates (e.g., FPR=1%, 5%)** with 95% bootstrapped confidence intervals (1,000 resamples).

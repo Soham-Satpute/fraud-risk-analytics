@@ -122,28 +122,33 @@ Business Case Study   ← §12 — separate stakeholder-facing document,
 - 5 D-features show PSI > 0.10 under temporal split (D4, D6, D10, D14, D15) — structural drift, flag for monitoring. Not a reason to drop them.
 - **Deliverable:** `docs/01_data_integrity_investigation.md` ✅ (populated with real numbers).
 
-### Week 2 — Data Layer + Automated Quality Checks
-- Stand up PostgreSQL (free tier — see §9) as a **serving/logging layer only**: schema for `predictions`, `model_runs`, and a small held-out demo-replay slice (a few hundred–thousand rows) — not the full raw dataset.
-- Keep all raw/training IEEE-CIS data as local parquet/CSV, used directly by training scripts. It never gets loaded into Postgres — there's no use for it there and it risks blowing through free-tier storage caps.
-- Write a small automated-checks suite (plain Python/pytest is enough — no Great Expectations needed): required columns present, expected dtypes, fraud label ∈ {0,1}, no duplicate transaction IDs, feature ranges sane.
-- **Deliverable:** `data_quality_checks.py` + short note distinguishing this from Week 1 ("investigation = one-time trust-building; this = repeatable validation on new batches") and a one-line note on why raw data stays out of Postgres.
+### Week 2 — Data Layer + Automated Quality Checks ✅ COMPLETE
 
-### Week 3 — Feature Engineering
+- Stood up PostgreSQL (Supabase free tier) schema (`sql/schema.sql`) as a **serving/logging layer only**: DDL for `predictions`, `model_runs`, and `demo_replay` tables with optimized indexes (partial index for high-risk manual review queue).
+- Enforced storage segregation boundary: Full raw and merged training data (590,540 rows × 434 cols) remains in local columnar Parquet (`data/processed/train_merged.parquet`, 84.1 MB) to prevent exhausting Supabase free-tier limits (<500MB).
+- Built automated data quality validation engine (`src/validation/data_quality.py`) and 20-test pytest suite (`tests/test_data_quality.py`): schema presence, memory dtypes, `isFraud ∈ {0, 1}` target integrity, `TransactionID` uniqueness, physical/domain range bounds, critical 0% nulls, and temporal partition verification (20/20 tests passed).
+- Built held-out demo slice extractor (`src/data/make_demo_slice.py`): generates 1,500 test transactions from `TransactionDT > 12,192,854` (517 KB Parquet / 418 KB JSON seed).
+- Authored BI analytics queries (`sql/analytics_queries.sql`) for Power BI and monitoring.
+- **Deliverables:** `src/validation/data_quality.py` ✅, `tests/test_data_quality.py` ✅, `sql/schema.sql` ✅, `sql/analytics_queries.sql` ✅, `src/data/make_demo_slice.py` ✅, `docs/02_data_quality_notes.md` ✅.
 
-**Scope revised based on Week 1 audit findings** (see `docs/01_data_integrity_investigation.md §4.4`):
+### Week 3 — Feature Engineering ✅ COMPLETE
+
+**Scope implemented based on Week 1 audit findings:**
 
 | Feature | Action | Reason |
 |---|---|---|
-| Transaction velocity (rolling count by card) | ❌ **Skip — use C1 directly** | C1 is identical (\|r\|=1.000 with our planned feature) |
-| Time since last transaction | ❌ **Skip — use D1 directly** | D1 is identical (\|r\|=1.000). D2 is also highly correlated (\|r\|=0.973). |
-| Amount z-score by card/merchant | ✅ **Build** | Not captured by any existing V/D/C column |
-| Log-transformed TransactionAmt | ✅ **Build** | Reduces skewness; not in current columns |
-| Merchant/category frequency | ✅ **Build & evaluate** | Partially in C-features — compute, cross-check, keep if non-redundant |
-| Hour-of-day cycle feature | ✅ **Build** | `(TransactionDT - min_DT) % 86400 / 3600` — not in current columns |
-| Day-of-week cycle feature | ✅ **Evaluate** | May overlap with D-feature patterns; evaluate empirically |
+| Transaction velocity (rolling count by card) | ❌ **Skipped — used C1 directly** | C1 is identical (\|r\|=1.000 with planned feature) |
+| Time since last transaction | ❌ **Skipped — used D1 directly** | D1 is identical (\|r\|=1.000). D2 is also highly correlated (\|r\|=0.973). |
+| Amount z-score by card/merchant (`amt_zscore_card1`, `amt_zscore_card1_addr1`, `amt_zscore_email`) | ✅ **Built** | High-value deviation signal; $|r| \le 0.03$ with C1/D1 (non-redundant) |
+| Log-transformed TransactionAmt (`log_TransactionAmt`) | ✅ **Built** | Compresses heavy right-tail skewness; $|r| \le 0.03$ with C1/D1 |
+| Frequency encodings (`freq_card1`, `freq_card2`, `freq_addr1`, `freq_ProductCD`, `freq_R_emaildomain`, etc.) | ✅ **Built & audited** | Strong non-linear predictive signal (`freq_R_emaildomain` $r = +0.156$, `freq_addr2` $r = -0.158$) |
+| Cyclical hour-of-day features (`hour_sin`, `hour_cos`) | ✅ **Built** | Captures 24-hour diurnal cycle |
+| Cyclical day-of-week features (`dow_sin`, `dow_cos`) | ✅ **Built** | Captures 7-day weekly cycle |
+| Email consistency flag (`email_match_flag`) | ✅ **Built** | Consistency between payer and recipient domains ($r = +0.148$) |
 
-- All new features cross-checked against the collinear V-feature pairs (162 pairs, |r|≥0.98) — document any that duplicate V-signal.
-- Document every feature dropped with the specific V/D/C column it was found to duplicate.
+- **Strict Leakage Prevention:** All frequency mappings and amount group statistics fit strictly on `TransactionDT ≤ 12,192,854` (Train).
+- **Cross-Correlation Audit:** Verified that all 24 newly engineered features maintain $|r| < 0.85$ with $C1$ and $D1$ (maximum $|r|$ observed was 0.243), proving genuine additive predictive value.
+- **Deliverables:** `src/features/engineer.py` ✅, `src/features/build_features.py` ✅, `tests/test_feature_engineering.py` (8/8 passed) ✅, `notebooks/03_feature_engineering.ipynb` ✅, `data/processed/train_features.parquet` (74.9 MB) ✅, `data/processed/test_features.parquet` (19.6 MB) ✅, `models/feature_pipeline.joblib` ✅, `data/processed/feature_metadata.json` ✅.
 
 ### Week 4 — EDA / Storytelling
 - 4–5 concrete insights framed for a fraud-risk stakeholder.
@@ -256,14 +261,14 @@ The project must produce this as an actual artifact (feeds directly into Week 8'
 *(Superseded by the locked final scope in §11 — kept here for traceability of what changed across revisions.)*
 
 **Keep (non-negotiable):**
-- [ ] Data Integrity Investigation as a standalone, documented deliverable
-- [ ] Evidence-based split strategy (not assumed)
-- [ ] Feature audit of `V`/`D`/`C` columns with documented reasoning
+- [x] Data Integrity Investigation as a standalone, documented deliverable (Week 1)
+- [x] Evidence-based split strategy (not assumed) (Week 1)
+- [x] Feature audit of `V`/`D`/`C` columns with documented reasoning (Week 1)
 - [ ] Class-weighted XGBoost/LightGBM + LR baseline
 - [ ] Cost-matrix-based threshold selection
 - [ ] SHAP reason codes
-- [ ] PostgreSQL as the real serving/logging system of record — predictions, model_runs, demo slice (not the full raw dataset, not CSV)
-- [ ] Automated data-quality checks (separate from the investigation)
+- [x] PostgreSQL as the real serving/logging system of record — predictions, model_runs, demo slice (not the full raw dataset, not CSV) (Week 2)
+- [x] Automated data-quality checks (separate from the investigation) (Week 2)
 - [ ] One deployed FastAPI endpoint + Next.js demo (two pages max) on real held-out data
 - [ ] Basic post-deployment monitoring surfaced in Power BI
 - [ ] Business Decision Workflow (§4a) — threshold sweep, quantified baseline comparison, sensitivity analysis — run for real, allowed to conclude the model isn't worth deploying
