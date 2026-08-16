@@ -111,11 +111,26 @@ fraud-risk-analytics/
 
 ## 6. Execution Phases & Guidelines for Coding Agents
 
-### Phase 1: Data Integrity & Feature Audit (Docs & Notebooks)
-- Profile `TransactionDT` as a relative timestamp/delta, not an absolute datetime.
-- Create approximate client identifiers via `card1-6`, `addr1-2`, and transaction context. Always document as a *proxy*, not ground truth.
-- Evaluate train/test temporal splits vs entity-grouped splits. Document data leakage findings neutrally in `docs/01_data_integrity_investigation.md`.
-- Audit `V`, `D`, and `C` columns. Drop or retain features based on correlation, collinearity, and leakage risk.
+### Phase 1: Data Integrity & Feature Audit (Docs & Notebooks) — ✅ COMPLETE
+
+**Confirmed facts — use in all downstream code, docs, and comments without re-investigation:**
+
+| Fact | Value |
+|---|---|
+| `TransactionDT` type | Relative delta in seconds from undisclosed origin. Range `[86,400 – 15,811,131]`. Span: 182 days (26 weeks). Never treat as absolute timestamp. |
+| Dataset shape (post-merge) | 590,540 rows × 434 columns |
+| Fraud rate | 3.499% (20,663 fraud / 569,877 legitimate) |
+| Identity join coverage | 23.8% — identity features are sparse; handle missingness explicitly |
+| Fraud rate temporal drift | 3.40% (first half) → 3.61% (second half) |
+| Chosen validation strategy | **Temporal split at TransactionDT ≤ 12,192,854** (80th percentile). Train: 472,432 rows. Test: 118,108 rows. |
+| Entity proxy columns | `card1`, `card2`, `card3`, `card5`, `addr1`, `addr2`, `P_emaildomain` → 94,846 unique proxies |
+| Entity overlap (temporal) | **67.6%** — selected as realistic; random (74.7%) avoided due to metric inflation |
+| Supplementary benchmark | Grouped entity split (0% overlap) used once at Week 5 evaluation as generalisation lower bound |
+| D1 | **= time-since-last-transaction** (\|r\|=1.000 with planned feature). Use D1 directly. Do not rebuild. |
+| C1 | **= transaction velocity proxy** (\|r\|=1.000 with planned feature). Use C1 directly. Do not rebuild. |
+| V-feature missingness | 7 distinct clusters. 339 V-columns total (up to 85% missing in sparse clusters). |
+| V near-duplicate pairs | 162 pairs with \|r\| ≥ 0.98. Top predictors: V257, V201, V246, V200 (\|r\|=0.26–0.28 with fraud). |
+| Unstable D-features (PSI>0.10) | D4, D6, D10, D14, D15 — structural drift under temporal split; flag for monitoring, do not drop. |
 
 ### Phase 2: Repeatable Data Quality & Serving Schema
 - Write unit tests in `tests/test_data_quality.py` for column types, range constraints, fraud label validation (`{0, 1}`), and duplicate checks.
@@ -123,13 +138,26 @@ fraud-risk-analytics/
 - Create minimal Postgres schema in `sql/schema.sql` for `predictions`, `model_runs`, and `demo_replay`.
 
 ### Phase 3: Feature Engineering & Baseline Modeling
-- Construct domain features: transaction velocity (rolling counts/sums), amount z-scores by card/merchant, time-delta since previous transaction, merchant frequency.
-- Train **Logistic Regression** baseline first.
+
+**Feature engineering scope locked by Week 1 audit** (`docs/01_data_integrity_investigation.md §4.4`). Do not build features that duplicate existing columns:
+
+| Feature | Decision | Rationale |
+|---|---|---|
+| Transaction velocity | ❌ Use **C1** directly | C1 is identical (\|r\|=1.000) |
+| Time since last transaction | ❌ Use **D1** directly | D1 is identical (\|r\|=1.000) |
+| Amount z-score by card/merchant | ✅ Build | Not in any existing column |
+| Log-transformed TransactionAmt | ✅ Build | Not in any existing column |
+| Merchant/category frequency | ✅ Build & cross-check | May partially overlap C-features — retain if non-redundant |
+| Hour-of-day cycle | ✅ Build | `(TransactionDT - 86400) % 86400 / 3600` |
+| Day-of-week cycle | ✅ Evaluate | Evaluate empirically against D-feature patterns |
+
+- Train **Logistic Regression** baseline first (on merged feature set including D1, C1, key V-features).
 - Train **XGBoost / LightGBM** with `scale_pos_weight` (class-weighting).
 - Compute PR-AUC, ROC-AUC, and **Recall at fixed False Positive Rates (e.g., FPR=1%, 5%)** with 95% bootstrapped confidence intervals (1,000 resamples).
 
 ### Phase 4: Explainability & Grounded Narrative Generation
 - Compute TreeSHAP values for held-out predictions. Extract top-5 positive and negative contributing features as reason codes.
+- **V-feature collinearity handling:** 162 near-duplicate V-feature pairs (|r|≥0.98) exist. When aggregating SHAP reason codes, consolidate near-duplicate pairs (e.g., V95/V101/V279/V293 cluster) into a single reason code — do not surface four near-identical features as separate reasons to a stakeholder.
 - Use a local Ollama model (e.g., `llama3.2:3b`) with `temperature=0` to convert SHAP reason codes into concise, structured analyst summaries.
 - Run `tests/test_grounding_validator.py`: ensure regex/entity extraction confirms that every numeric value and feature mentioned in the narrative matches the SHAP payload.
 

@@ -1,0 +1,50 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.ipynb_checkpoints/
+
+# Virtual Environment
+venv/
+.venv/
+env/
+ENV/
+
+# Data files (NEVER commit raw or intermediate large data)
+data/
+*.csv
+*.parquet
+*.zip
+*.tar.gz
+*.pkl
+*.joblib
+
+# Models and large serialized artifacts
+models/*.joblib
+models/*.json
+models/*.pkl
+!models/.gitkeep
+
+# Environment variables & secrets
+.env
+.env.local
+*.pem
+kaggle.json
+
+# IDE & OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Test & coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Node / Frontend
+node_modules/
+.next/
+out/
+build/
+dist/

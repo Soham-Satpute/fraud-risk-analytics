@@ -107,13 +107,20 @@ Business Case Study   ← §12 — separate stakeholder-facing document,
 
 ## 4. Week-by-Week Plan (9 weeks, part-time alongside college)
 
-### Week 1 — Data Integrity Investigation (headline deliverable)
-- **Guiding question (kept deliberately neutral):** *How do entity overlap and temporal structure affect the reliability of different validation strategies for this dataset?* — not "prove the time split is wrong."
-- Profile `TransactionDT`: confirm actual range/granularity (it's a delta, not a calendar timestamp).
-- Reconstruct **approximate** client identity using `card1-6`, `addr1-2`, and related columns — explicitly caveat this is a correlated proxy, not a confirmed ground-truth key.
-- Measure client-overlap across a candidate time-based split; choose your final validation strategy based on whatever the evidence shows, reporting the outcome honestly either way.
-- Audit `V`/`D`/`C` feature blocks: correlation with target, correlation with your planned engineered features, stability under the chosen split.
-- **Deliverable:** standalone `01_data_integrity_investigation.md`.
+### Week 1 — Data Integrity Investigation (headline deliverable) ✅ COMPLETE
+
+**Confirmed findings (do not re-investigate; use these numbers in all downstream docs):**
+
+- `TransactionDT` confirmed as a **relative delta in seconds** from an undisclosed origin. Range: `[86,400 – 15,811,131]`. Span: **182 days (26 weeks)**. Never reconstruct an absolute calendar date.
+- Dataset: **590,540 rows × 434 columns** (post-merge). Fraud rate: **3.499%** (20,663 fraud). Identity join coverage: **23.8%** (identity features are sparse for most rows — handle missingness explicitly).
+- Fraud rate rises slightly from first half (3.40%) to second half (3.61%) — confirming mild temporal drift.
+- Approximate client proxy built from `card1`, `card2`, `card3`, `card5`, `addr1`, `addr2`, `P_emaildomain` → **94,846 unique proxies**, avg 6.2 transactions/proxy.
+- Entity overlap: **random split = 74.7%** (inflated; new entities have 32% lower fraud rate → metrics artificially optimistic), **temporal split = 67.6%** (realistic), **grouped = 0%** (too conservative, breaks temporal structure).
+- **Chosen validation strategy: Temporal split at TransactionDT ≤ 12,192,854 (80th percentile).** Train: 472,432 rows. Test: 118,108 rows. Grouped entity split used as supplementary lower-bound benchmark only.
+- `D1` = time-since-last-transaction (|r|=1.000 with our planned engineered feature). `C1` = velocity proxy (|r|=1.000). **Do not rebuild these in Week 3 — use D1 and C1 directly.**
+- 162 near-duplicate V-feature pairs (|r| ≥ 0.98). 7 V-missingness clusters. Top predictors: V257, V201, V246, V200 (|r|=0.26–0.28 with fraud).
+- 5 D-features show PSI > 0.10 under temporal split (D4, D6, D10, D14, D15) — structural drift, flag for monitoring. Not a reason to drop them.
+- **Deliverable:** `docs/01_data_integrity_investigation.md` ✅ (populated with real numbers).
 
 ### Week 2 — Data Layer + Automated Quality Checks
 - Stand up PostgreSQL (free tier — see §9) as a **serving/logging layer only**: schema for `predictions`, `model_runs`, and a small held-out demo-replay slice (a few hundred–thousand rows) — not the full raw dataset.
@@ -122,8 +129,21 @@ Business Case Study   ← §12 — separate stakeholder-facing document,
 - **Deliverable:** `data_quality_checks.py` + short note distinguishing this from Week 1 ("investigation = one-time trust-building; this = repeatable validation on new batches") and a one-line note on why raw data stays out of Postgres.
 
 ### Week 3 — Feature Engineering
-- Build velocity, amount z-score, time-since-last-transaction, merchant/category frequency features in pandas — cross-checked against Week 1's audit for redundancy.
-- Document any feature dropped because it duplicated or leaked relative to existing `V`/`D`/`C` signal.
+
+**Scope revised based on Week 1 audit findings** (see `docs/01_data_integrity_investigation.md §4.4`):
+
+| Feature | Action | Reason |
+|---|---|---|
+| Transaction velocity (rolling count by card) | ❌ **Skip — use C1 directly** | C1 is identical (\|r\|=1.000 with our planned feature) |
+| Time since last transaction | ❌ **Skip — use D1 directly** | D1 is identical (\|r\|=1.000). D2 is also highly correlated (\|r\|=0.973). |
+| Amount z-score by card/merchant | ✅ **Build** | Not captured by any existing V/D/C column |
+| Log-transformed TransactionAmt | ✅ **Build** | Reduces skewness; not in current columns |
+| Merchant/category frequency | ✅ **Build & evaluate** | Partially in C-features — compute, cross-check, keep if non-redundant |
+| Hour-of-day cycle feature | ✅ **Build** | `(TransactionDT - min_DT) % 86400 / 3600` — not in current columns |
+| Day-of-week cycle feature | ✅ **Evaluate** | May overlap with D-feature patterns; evaluate empirically |
+
+- All new features cross-checked against the collinear V-feature pairs (162 pairs, |r|≥0.98) — document any that duplicate V-signal.
+- Document every feature dropped with the specific V/D/C column it was found to duplicate.
 
 ### Week 4 — EDA / Storytelling
 - 4–5 concrete insights framed for a fraud-risk stakeholder.
