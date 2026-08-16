@@ -160,11 +160,16 @@ Business Case Study   ← §12 — separate stakeholder-facing document,
   5. **The Identity Capture Paradox:** Transactions with attached identity metadata have a **7.55% fraud rate vs. 2.13%** for unverified flows (**3.545x risk ratio**, 95% CI: 3.440x – 3.652x), proving identity capture is an adversarial risk indicator.
 - **Deliverables:** `src/eda/insights.py` ✅, `src/eda/__init__.py` ✅, `tests/test_eda_insights.py` (7/7 passed) ✅, `notebooks/02_eda_and_storytelling.ipynb` ✅, `data/processed/eda_insights_summary.json` ✅.
 
-### Week 5 — Modeling
-- Logistic Regression baseline; XGBoost/LightGBM with class-weighting as default imbalance strategy.
-- Optional small ablation: SMOTE vs. class-weighting vs. threshold-moving, documented reasoning for final choice.
-- PR-AUC, recall at fixed FPR; explicit cost matrix drives threshold selection (not a default 0.5 cutoff).
-- Report recall@fixed-FPR with a bootstrapped confidence interval (e.g. 1,000 resamples of the held-out set), not a bare point estimate — this interval is what gets quoted in the README and resume bullet, not just the point value.
+### Week 5 — Modeling ✅ COMPLETE
+- **Logistic Regression Baseline:** Trained on scaled/imputed numerical and frequency features with `class_weight="balanced"`. Test PR-AUC: `0.2746`, ROC-AUC: `0.8092`, Recall @ 1% FPR: `15.08%`, Recall @ 5% FPR: `41.76%`.
+- **Champion LightGBM Classifier:** High-capacity gradient boosting with `scale_pos_weight=27.46`. Test PR-AUC: `0.5441` (+98.1% relative gain over baseline), ROC-AUC: `0.9035`, Recall @ 1% FPR: `46.63%` (3.09x capture improvement), Recall @ 5% FPR: `65.95%` (+24.19 pp).
+- **1,000-Resample Non-Parametric Bootstrap 95% Confidence Intervals:**
+  - PR-AUC: `[0.5282 – 0.5607]`
+  - ROC-AUC: `[0.8982 – 0.9087]`
+  - Recall @ 1% FPR: `[44.90% – 48.24%]`
+  - Recall @ 5% FPR: `[64.46% – 67.45%]`
+- **Ablation & Generalization Audit:** Unweighted LightGBM PR-AUC: `0.5556`; Unseen entity lower-bound benchmark ($N=10,952$, 0% entity overlap): PR-AUC `0.4487`, Recall @ 1% FPR `36.36%` (~17.5% expected performance decay on novel entities).
+- **Deliverables:** `src/models/evaluation.py` ✅, `src/models/train.py` ✅, `tests/test_models.py` (5/5 passed; 40/40 total repository tests passed) ✅, `notebooks/04_model_training_and_evaluation.ipynb` ✅, `models/champion_model.joblib` ✅, `models/baseline_logistic_regression.joblib` ✅, `models/model_metrics.json` ✅.
 
 ### Week 6 — Explainability + Offline GenAI Narratives
 - SHAP → top-5 reason codes per transaction.
@@ -271,7 +276,7 @@ The project must produce this as an actual artifact (feeds directly into Week 8'
 - [x] Data Integrity Investigation as a standalone, documented deliverable (Week 1)
 - [x] Evidence-based split strategy (not assumed) (Week 1)
 - [x] Feature audit of `V`/`D`/`C` columns with documented reasoning (Week 1)
-- [ ] Class-weighted XGBoost/LightGBM + LR baseline
+- [x] Class-weighted XGBoost/LightGBM + LR baseline (Week 5)
 - [ ] Cost-matrix-based threshold selection
 - [ ] SHAP reason codes
 - [x] PostgreSQL as the real serving/logging system of record — predictions, model_runs, demo slice (not the full raw dataset, not CSV) (Week 2)

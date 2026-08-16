@@ -171,10 +171,18 @@ fraud-risk-analytics/
 - **Statistical Manifest (`data/processed/eda_insights_summary.json`)**: Machine-readable statistics for downstream case study quotations.
 - **Unit Test Suite (`tests/test_eda_insights.py`)**: 7 passing tests validating Wilson interval bounds, edge cases, and story consistency (35/35 total repository tests passing).
 
-**Next Step (Baseline & Tree Modeling — Week 5):**
-- Train **Logistic Regression** baseline first (on merged feature set including D1, C1, key V-features).
-- Train **XGBoost / LightGBM** with `scale_pos_weight` (class-weighting).
-- Compute PR-AUC, ROC-AUC, and **Recall at fixed False Positive Rates (e.g., FPR=1%, 5%)** with 95% bootstrapped confidence intervals (1,000 resamples).
+**Baseline & Tree Modeling Deliverables (Week 5) — ✅ COMPLETE:**
+- **Evaluation Toolkit (`src/models/evaluation.py`)**: Rank metrics (PR-AUC, ROC-AUC, Log-Loss, Brier score), operational threshold solver (`calculate_recall_at_fixed_fpr`), 1,000-resample non-parametric bootstrap confidence interval engine (`bootstrap_metric_confidence_intervals`), and fine-grained threshold sweeper (`generate_threshold_sweep`).
+- **End-to-End Training Pipeline (`src/models/train.py`)**: Trains Logistic Regression baseline (StandardScaler + SimpleImputer), Champion LightGBM (`scale_pos_weight=27.46`, 200 trees), and Ablation unweighted LightGBM strictly on $N=472,432$ train set.
+- **Held-Out Test Set Benchmark ($N=118,108$ post-cutoff):**
+  - **PR-AUC (Primary):** Champion `0.5441` (95% CI: `[0.5282, 0.5607]`) vs Baseline `0.2746` (+98.1% lift)
+  - **ROC-AUC:** Champion `0.9035` (95% CI: `[0.8982, 0.9087]`) vs Baseline `0.8092` (+11.7% lift)
+  - **Recall @ 1% FPR:** Champion `46.63%` (95% CI: `[44.90%, 48.24%]`) vs Baseline `15.08%` (3.09x capture)
+  - **Recall @ 5% FPR:** Champion `65.95%` (95% CI: `[64.46%, 67.45%]`) vs Baseline `41.76%` (+24.19 pp)
+- **Generalization Stress Test (Unseen Entities, $N=10,952$, 0% Overlap):** PR-AUC `0.4487`, ROC-AUC `0.8774`, Recall @ 1% FPR `36.36%` (~17.5% degradation on brand-new unseen entities).
+- **Serialized Model Artifacts:** `models/champion_model.joblib`, `models/baseline_logistic_regression.joblib`, and `models/model_metrics.json`.
+- **Unit Test Suite (`tests/test_models.py`)**: 5 passing pytest unit tests covering metric accuracy, fixed FPR thresholding, bootstrap CI monotonicity, and threshold sweeps (40/40 total repository tests passing).
+- **Modeling Notebook (`notebooks/04_model_training_and_evaluation.ipynb`)**: Head-to-head comparison, top-20 gain feature importances, unseen entity stress test, and review queue sizing sweep.
 
 ### Phase 4: Explainability & Grounded Narrative Generation
 - Compute TreeSHAP values for held-out predictions. Extract top-5 positive and negative contributing features as reason codes.
