@@ -150,8 +150,15 @@ Business Case Study   ← §12 — separate stakeholder-facing document,
 - **Cross-Correlation Audit:** Verified that all 24 newly engineered features maintain $|r| < 0.85$ with $C1$ and $D1$ (maximum $|r|$ observed was 0.243), proving genuine additive predictive value.
 - **Deliverables:** `src/features/engineer.py` ✅, `src/features/build_features.py` ✅, `tests/test_feature_engineering.py` (8/8 passed) ✅, `notebooks/03_feature_engineering.ipynb` ✅, `data/processed/train_features.parquet` (74.9 MB) ✅, `data/processed/test_features.parquet` (19.6 MB) ✅, `models/feature_pipeline.joblib` ✅, `data/processed/feature_metadata.json` ✅.
 
-### Week 4 — EDA / Storytelling
-- 4–5 concrete insights framed for a fraud-risk stakeholder.
+### Week 4 — EDA / Storytelling ✅ COMPLETE
+
+- **5 Statistically-Grounded Stakeholder Stories** computed strictly on the training partition ($N=472,432$, $TransactionDT \le 12,192,854$):
+  1. **Diurnal Attack Window:** Night off-peak hours (00:00–06:59) exhibit a **1.362x risk multiplier** (95% CI: 1.310x – 1.416x) vs. daytime hours.
+  2. **The Self-Transfer Recipient Anomaly:** In digital delivery/remittance flows with a recipient email, identical purchaser and recipient domains ($P == R$) produce a **9.29% fraud rate** vs. **2.82%** for genuine cross-transfers (**3.296x risk ratio**, 95% CI: 3.031x – 3.584x) and 2.00% for standard retail (4.64x multiplier).
+  3. **Card-Level Relative Deviations:** Transactions exceeding $3.0\sigma$ above their card's historical baseline have a **4.422% fraud rate** vs **3.359%** at baseline (**1.317x relative risk**, 95% CI: 1.190x – 1.456x).
+  4. **Product Category & Channel Disparities:** Category 'C' concentrates the highest fraud density (**11.69%**), whereas category 'W' generates **> 65% of total net fraud dollar losses**.
+  5. **The Identity Capture Paradox:** Transactions with attached identity metadata have a **7.55% fraud rate vs. 2.13%** for unverified flows (**3.545x risk ratio**, 95% CI: 3.440x – 3.652x), proving identity capture is an adversarial risk indicator.
+- **Deliverables:** `src/eda/insights.py` ✅, `src/eda/__init__.py` ✅, `tests/test_eda_insights.py` (7/7 passed) ✅, `notebooks/02_eda_and_storytelling.ipynb` ✅, `data/processed/eda_insights_summary.json` ✅.
 
 ### Week 5 — Modeling
 - Logistic Regression baseline; XGBoost/LightGBM with class-weighting as default imbalance strategy.

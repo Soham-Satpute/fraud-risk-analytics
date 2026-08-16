@@ -84,10 +84,11 @@ fraud-risk-analytics/
 │   └── 05_shap_and_narrative_generation.ipynb
 ├── src/
 │   ├── data/                                 # Data loading & preprocessing utilities
-│   ├── features/                             # Velocity, amount z-score, time-since-last, frequency features
+│   ├── features/                             # Frequency, amount z-scores, cyclical, email features
+│   ├── eda/                                  # Statistical insights & hypothesis testing
 │   ├── models/                               # Logistic Regression, XGBoost/LightGBM training & cost-eval logic
 │   ├── explainability/                       # SHAP reason codes & Ollama prompt templating
-│   └── validation/                           # Grounding validator logic
+│   └── validation/                           # Data quality engine & Grounding validator logic
 ├── api/
 │   ├── main.py                               # FastAPI application
 │   ├── routes.py                             # /predict, /health, /replay endpoints
@@ -97,12 +98,14 @@ fraud-risk-analytics/
 │   ├── app/ (or pages/)
 │   └── components/
 ├── sql/
-│   ├── schema.sql                            # predictions, model_runs, demo_transactions tables
+│   ├── schema.sql                            # predictions, model_runs, demo_replay tables
 │   └── analytics_queries.sql                 # Fraud trends, review volumes, model drift queries
 ├── dashboard/
 │   └── fraud_analytics_dashboard.pbix        # Power BI report file + screenshots
 ├── tests/
 │   ├── test_data_quality.py                  # Pytest automated checks on data batches
+│   ├── test_feature_engineering.py           # Pytest unit tests for leakage-free feature pipeline
+│   ├── test_eda_insights.py                  # Pytest tests for Wilson CIs and statistical stories
 │   └── test_grounding_validator.py           # Pytest checks on LLM narratives vs SHAP evidence
 └── models/                                   # Serialized model artifacts (.joblib / .json) + metadata
 ```
@@ -162,7 +165,13 @@ fraud-risk-analytics/
 | Day-of-week cycle | ✅ Built | `dow_sin`, `dow_cos` (7-day weekly cycle) |
 | Email consistency | ✅ Built | `email_match_flag`, `null_P_email`, `null_R_email` |
 
-**Next Step (Baseline Modeling):**
+**EDA & Storytelling Deliverables (Week 4) — ✅ COMPLETE:**
+- **Statistical Insights Engine (`src/eda/insights.py`)**: Computes 5 concrete fraud stories with 95% Wilson Score Confidence Intervals, Risk Ratios ($RR$), and financial loss metrics strictly on the training partition ($N=472,432$).
+- **Storytelling Notebook (`notebooks/02_eda_and_storytelling.ipynb`)**: Publication-quality visual analysis and executive callouts covering diurnal attack windows (1.36x risk), self-transfer recipient anomalies (3.30x risk, 9.29% fraud), relative card z-scores (1.32x risk), product channel risk disparities, and the identity capture paradox (3.55x risk).
+- **Statistical Manifest (`data/processed/eda_insights_summary.json`)**: Machine-readable statistics for downstream case study quotations.
+- **Unit Test Suite (`tests/test_eda_insights.py`)**: 7 passing tests validating Wilson interval bounds, edge cases, and story consistency (35/35 total repository tests passing).
+
+**Next Step (Baseline & Tree Modeling — Week 5):**
 - Train **Logistic Regression** baseline first (on merged feature set including D1, C1, key V-features).
 - Train **XGBoost / LightGBM** with `scale_pos_weight` (class-weighting).
 - Compute PR-AUC, ROC-AUC, and **Recall at fixed False Positive Rates (e.g., FPR=1%, 5%)** with 95% bootstrapped confidence intervals (1,000 resamples).
