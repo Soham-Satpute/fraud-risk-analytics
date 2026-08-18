@@ -184,11 +184,16 @@ fraud-risk-analytics/
 - **Unit Test Suite (`tests/test_models.py`)**: 5 passing pytest unit tests covering metric accuracy, fixed FPR thresholding, bootstrap CI monotonicity, and threshold sweeps (40/40 total repository tests passing).
 - **Modeling Notebook (`notebooks/04_model_training_and_evaluation.ipynb`)**: Head-to-head comparison, top-20 gain feature importances, unseen entity stress test, and review queue sizing sweep.
 
-### Phase 4: Explainability & Grounded Narrative Generation
-- Compute TreeSHAP values for held-out predictions. Extract top-5 positive and negative contributing features as reason codes.
-- **V-feature collinearity handling:** 162 near-duplicate V-feature pairs (|r|≥0.98) exist. When aggregating SHAP reason codes, consolidate near-duplicate pairs (e.g., V95/V101/V279/V293 cluster) into a single reason code — do not surface four near-identical features as separate reasons to a stakeholder.
-- Use a local Ollama model (e.g., `llama3.2:3b`) with `temperature=0` to convert SHAP reason codes into concise, structured analyst summaries.
-- Run `tests/test_grounding_validator.py`: ensure regex/entity extraction confirms that every numeric value and feature mentioned in the narrative matches the SHAP payload.
+### Phase 4: Explainability & Grounded Narrative Generation (Week 6) — ✅ COMPLETE
+
+**Confirmed deliverables & implemented components:**
+- **Reason Code & Collinearity Consolidation Engine (`src/explainability/reason_codes.py`)**: Consolidates 162 near-duplicate collinear $V$-feature pairs ($|r| \ge 0.98$ from Week 1) into unified driver clusters (e.g. *Payment Activity Volume Cluster* for $V95/V101/V279/V293$). Maps features to human-readable domain descriptors with units and delta comparisons. Enforces the predefined business action policy (`APPROVE`, `STEP_UP_AUTH`, `MANUAL_REVIEW`).
+- **TreeSHAP Attribution Engine (`src/explainability/shap_explainer.py`)**: High-performance TreeSHAP wrapper for Champion LightGBM supporting interactive single-transaction inference-time explanations and vectorized batch explanations across DataFrames.
+- **Multi-Provider LLM Narrative Layer (`src/explainability/llm_client.py` & `src/explainability/narrative_generator.py`)**: Tiered provider hierarchy: Ollama (Primary local model) $\rightarrow$ Deterministic Template (Baseline guarantee) $\rightarrow$ Grok/xAI API (Optional experiment). Generates structured 4-section analyst assessments with automatic fallback-on-rejection.
+- **Automated Grounding Validator Engine (`src/validation/grounding_validator.py`)**: Audits narratives against direct numbers, derived multiples (recalculated from baseline evidence), feature existence, directional consistency, and anti-speculation rules.
+- **Offline Batch Generation Pipeline (`src/explainability/batch_generate_narratives.py`)**: Enriched the 1,500 held-out test transactions in `data/processed/demo_replay_slice.parquet` and `data/processed/demo_replay_slice.json`. Generated empirical audit manifest `data/processed/grounding_validation_report.json` (93.47% empirical initial pass rate, 100.0% final verified rate after fallback substitution).
+- **Unit Test Suites (`tests/test_explainability.py` & `tests/test_grounding_validator.py`)**: 12 new passing pytest tests (52/52 total repository tests passing).
+- **Visual Storytelling Notebook (`notebooks/05_shap_and_narrative_generation.ipynb`)**: Beeswarm/summary plots, collinearity consolidation demonstrations, case studies, and grounding audit visualizations.
 
 ### Phase 5: Business Decision Workflow (§4a & §4b)
 - Execute the full 12-step workflow below end-to-end on the deployed model's held-out predictions (already logged in Postgres from Phase 6 — no new data pipeline needed).

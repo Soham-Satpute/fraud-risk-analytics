@@ -171,11 +171,15 @@ Business Case Study   ← §12 — separate stakeholder-facing document,
 - **Ablation & Generalization Audit:** Unweighted LightGBM PR-AUC: `0.5556`; Unseen entity lower-bound benchmark ($N=10,952$, 0% entity overlap): PR-AUC `0.4487`, Recall @ 1% FPR `36.36%` (~17.5% expected performance decay on novel entities).
 - **Deliverables:** `src/models/evaluation.py` ✅, `src/models/train.py` ✅, `tests/test_models.py` (5/5 passed; 40/40 total repository tests passed) ✅, `notebooks/04_model_training_and_evaluation.ipynb` ✅, `models/champion_model.joblib` ✅, `models/baseline_logistic_regression.joblib` ✅, `models/model_metrics.json` ✅.
 
-### Week 6 — Explainability + Offline GenAI Narratives
-- SHAP → top-5 reason codes per transaction.
-- Generate templated narratives **offline, once**, using a **local model via Ollama** (e.g. Llama 3.2 3B or Phi-3-mini) for the held-out demo set — temperature 0, restates only top-k SHAP features/values, no open-ended reasoning. Store narratives in Postgres.
-- **Grounding validator (ships with the LLM layer, not separately optional):** a small script that checks each generated narrative doesn't reference any feature name, number, or claim not present in the SHAP evidence it was given. If the LLM narrative layer is built at all, this validator is built too — the LLM layer is only decorative without it. Run it over all generated narratives and report the pass rate.
-- State clearly in the README that this is a translation layer generated offline via a local model, not a live decision-maker.
+### Week 6 — Explainability + Offline GenAI Narratives ✅ COMPLETE
+- **SHAP Reason Code & Collinearity Consolidation Engine (`src/explainability/reason_codes.py`)**: Consolidated 162 near-duplicate collinear $V$-feature pairs ($|r| \ge 0.98$) into coherent driver clusters (e.g. *Payment Activity Volume Cluster* for $V95/V101/V279/V293$), mapped features to human-readable domain descriptors, and integrated predefined business policy actions (`APPROVE`, `STEP_UP_AUTH`, `MANUAL_REVIEW`).
+- **TreeSHAP Explainer (`src/explainability/shap_explainer.py`)**: Implemented interactive inference-time and batch TreeSHAP feature attributions on Champion LightGBM.
+- **Multi-Provider GenAI Narrative Layer (`src/explainability/llm_client.py` & `src/explainability/narrative_generator.py`)**: Strict $0 hierarchy: Ollama (Primary local model, temp 0) $\rightarrow$ Deterministic Template (Baseline guarantee) $\rightarrow$ Grok/xAI API (Optional experiment). Generates structured 4-section analyst assessments with automatic fallback-on-rejection.
+- **Grounding Validator Engine (`src/validation/grounding_validator.py`)**: Automated verification engine distinguishing direct facts, derived claims (recalculated against baselines), feature existence, directional consistency (+/- SHAP), and anti-speculation rules.
+- **Offline Batch Generation Pipeline (`src/explainability/batch_generate_narratives.py`)**: Enriched the 1,500 held-out test transactions in `data/processed/demo_replay_slice.parquet` and `data/processed/demo_replay_slice.json`. Generated empirical audit manifest `data/processed/grounding_validation_report.json` (93.47% empirical initial pass rate, 100.0% final verified rate after fallback substitution).
+- **Unit Test Suites (`tests/test_explainability.py` & `tests/test_grounding_validator.py`)**: 12 new pytest unit tests (52/52 total repository tests passing).
+- **Visual Storytelling Notebook (`notebooks/05_shap_and_narrative_generation.ipynb`)**: Global beeswarm plots, collinearity consolidation demos, case studies, and grounding audit checks.
+- **Deliverables:** `src/explainability/reason_codes.py` ✅, `src/explainability/shap_explainer.py` ✅, `src/explainability/llm_client.py` ✅, `src/explainability/narrative_generator.py` ✅, `src/validation/grounding_validator.py` ✅, `src/explainability/batch_generate_narratives.py` ✅, `tests/test_explainability.py` (6/6 passed) ✅, `tests/test_grounding_validator.py` (6/6 passed; 52/52 total repository tests passed) ✅, `notebooks/05_shap_and_narrative_generation.ipynb` ✅, `data/processed/demo_replay_slice.parquet` ✅, `data/processed/demo_replay_slice.json` ✅, `data/processed/grounding_validation_report.json` ✅.
 
 ### Week 7 — Deployment (data layer + API + monitoring)
 - FastAPI `/predict` endpoint: reads model, writes each prediction + reason codes to Postgres. Deploy on Render free tier.
@@ -278,7 +282,7 @@ The project must produce this as an actual artifact (feeds directly into Week 8'
 - [x] Feature audit of `V`/`D`/`C` columns with documented reasoning (Week 1)
 - [x] Class-weighted XGBoost/LightGBM + LR baseline (Week 5)
 - [ ] Cost-matrix-based threshold selection
-- [ ] SHAP reason codes
+- [x] SHAP reason codes (Week 6)
 - [x] PostgreSQL as the real serving/logging system of record — predictions, model_runs, demo slice (not the full raw dataset, not CSV) (Week 2)
 - [x] Automated data-quality checks (separate from the investigation) (Week 2)
 - [ ] One deployed FastAPI endpoint + Next.js demo (two pages max) on real held-out data
@@ -288,7 +292,7 @@ The project must produce this as an actual artifact (feeds directly into Week 8'
 - [ ] Business Case Study (§12) as a stakeholder-facing deliverable, separate from the README, populated only after the analysis is complete
 
 **Simplify:**
-- [ ] LLM layer → local model (Ollama), offline-generated, template-constrained, stored not live
+- [x] LLM layer → local model (Ollama), offline-generated, template-constrained, stored not live (Week 6)
 - [ ] Next.js frontend → two pages max, no auth/routing complexity
 - [ ] Power BI → focused pages (analytics + Model Health), clearly labeled
 

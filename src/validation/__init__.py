@@ -17,6 +17,10 @@ if TYPE_CHECKING:
         check_uniqueness,
         run_data_quality_suite,
     )
+    from .grounding_validator import (
+        GroundingValidationResult,
+        GroundingValidator,
+    )
 
 
 def __getattr__(name: str):
@@ -34,6 +38,12 @@ def __getattr__(name: str):
     }:
         import src.validation.data_quality as dq
         return getattr(dq, name)
+    elif name in {
+        "GroundingValidator",
+        "GroundingValidationResult",
+    }:
+        import src.validation.grounding_validator as gv
+        return getattr(gv, name)
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
@@ -48,4 +58,7 @@ __all__ = [
     "check_categorical_domains",
     "check_temporal_span",
     "run_data_quality_suite",
+    "GroundingValidator",
+    "GroundingValidationResult",
 ]
+
