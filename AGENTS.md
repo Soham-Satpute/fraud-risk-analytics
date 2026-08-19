@@ -195,10 +195,21 @@ fraud-risk-analytics/
 - **Unit Test Suites (`tests/test_explainability.py` & `tests/test_grounding_validator.py`)**: 12 new passing pytest tests (52/52 total repository tests passing).
 - **Visual Storytelling Notebook (`notebooks/05_shap_and_narrative_generation.ipynb`)**: Beeswarm/summary plots, collinearity consolidation demonstrations, case studies, and grounding audit visualizations.
 
-### Phase 5: Business Decision Workflow (§4a & §4b)
-- Execute the full 12-step workflow below end-to-end on the deployed model's held-out predictions (already logged in Postgres from Phase 6 — no new data pipeline needed).
-- **The recommendation is not decided in advance.** The workflow must be run for real, on real numbers, and must be allowed to conclude the model doesn't justify deployment — that is a valid, reportable outcome.
-- Populate `docs/03_business_decision_and_threshold_analysis.md` with concrete numbers and the completed §4b template (with real numbers, never placeholders).
+### Phase 5: Business Decision Workflow (§4a & §4b) — ✅ COMPLETE
+- **12-Step Business Decision Workflow Engine (`src/models/threshold_analysis.py`)**:
+  - Evaluated Champion LightGBM across 100 candidate thresholds on the full held-out test partition ($N=118,108$, $4,064$ frauds, $3.441\%$ fraud rate).
+  - Modeled 3-tier routing economic cost: Straight-Through ($p < 0.01$) $\rightarrow$ Step-Up Verification ($0.01 \le p < 0.70$, $\eta_{stepup}=80\%$, $C_{stepup}=\$0.50$) $\rightarrow$ Prioritized Manual Review ($p \ge 0.70$, $C_{review}=\$8.00$).
+  - Solved capacity-constrained candidate policies: Policy A (Conservative, $\le 1\%$ review cap $\rightarrow \tau_{high}=0.96, \tau_{med}=0.01$), Policy B (Balanced, $\le 5\%$ review cap $\rightarrow \tau_{high}=0.70, \tau_{med}=0.01$), and Policy C (Aggressive, $\le 10\%$ review cap $\rightarrow$ converges to Policy B).
+  - Head-to-head baseline benchmark: Candidate Policy B achieves **$\$649,433.00$ in net financial savings** ($+93.6\%$ lift in savings over Logistic Regression Baseline with $\$335,488.00$, and reduces review volume from $26,089$ to $4,297$ transactions [$-83.5\%$ reduction in caseload$]).
+  - Computed full $3 \times 3 \times 4 = 36$-scenario financial sensitivity matrix: verified optimal threshold stability ($\tau_{high} \in [0.64, 0.96]$) across all scenarios.
+  - Computed dedicated Step-Up Authentication sensitivity matrix ($\eta \in [50\%, 90\%]$, $C_{stepup} \in [\$0.25, \$1.00]$).
+  - Documented Generalization Stress Test on unseen entities ($N=10,952$, 0% overlap, PR-AUC $0.4487$).
+- **Authoritative Stakeholder Deliverable (`docs/03_business_decision_and_threshold_analysis.md`)**:
+  - Complete 12-field business decision document populated with 100% concrete, real analysis figures (zero placeholders).
+  - Answers the four core stakeholder questions: *What did we learn? What should the business do? Why? What would change our decision?*
+- **Statistical Manifest (`data/processed/business_decision_summary.json`)**: Machine-readable metrics manifest for downstream case study quotations.
+- **Automated Pytest Test Suite (`tests/test_business_decision.py`)**: 6 passing unit tests validating cost calculations, non-increasing recall trend, capacity solver constraints, and manifest integrity (72/72 total repository tests passing).
+- **Deliverables:** `src/models/threshold_analysis.py` ✅, `docs/03_business_decision_and_threshold_analysis.md` ✅, `data/processed/business_decision_summary.json` ✅, `tests/test_business_decision.py` (6/6 passed; 72/72 total tests passed) ✅.
 
 ### Phase 6: FastAPI Backend, Deployment & Monitoring (Week 7) — ✅ BACKEND COMPLETE
 - **FastAPI Serving Engine (`api/main.py`, `api/routes.py`, `api/schemas.py`, `api/db.py`, `api/config.py`)**:
@@ -220,9 +231,15 @@ fraud-risk-analytics/
   1. *Simulated Stream & Scoring Page*: Replays held-out transactions, calls `/predict`, displays probability gauge, SHAP reason codes, and grounded narrative.
   2. *Methodology & Performance Page*: Summary of validation split findings, cost curves, and confidence intervals.
 
-### Phase 7: Deliverables Separation (README vs Case Study)
-- **Technical README (`README.md`)**: Targeted at engineers & technical interviewers. Details data pipelines, ML architecture, API contracts, deployment instructions, and limitations.
-- **Business Case Study (`case-study/fraud-risk-case-study.md`)**: Targeted at hiring managers, analysts, and business stakeholders. Follows the locked 10-section structure from §12. Populated ONLY with real analysis numbers. **Do not duplicate content between the two — they serve different audiences.**
+### Phase 7: Deliverables Separation (README vs Case Study) & Final UI — ✅ COMPLETE
+- **Next.js Portfolio Demo Frontend (`frontend/`)**:
+  - Strictly 2 pages max: `/` (*Interactive Fraud Scoring Demo*) and `/methodology` (*Methodology & Analytics Summary*).
+  - Built with React, Vanilla CSS dark fintech tokens, animated score gauge, TreeSHAP reason codes, grounded narrative card with Grounding Safeguard badge, and interactive test sandbox.
+  - Production build verified with 0 errors (`npm run build`).
+- **Technical Developer README (`README.md`)**: Targeted at engineers & technical interviewers. Details data pipelines, ML architecture, TreeSHAP reason codes, API contracts, local reproduction guides, and permanent $0 deployment blueprints.
+- **Business Case Study (`case-study/fraud-risk-case-study.md`)**: Targeted at hiring managers, analysts, and business stakeholders. Follows the locked 10-section structure from §12. Populated ONLY with real empirical analysis numbers from Weeks 1–8 (zero placeholders).
+- **GitHub Actions CI/CD Pipeline (`.github/workflows/ci.yml`)**: Continuous integration testing across all 72 pytest tests and validating Next.js production builds on every push/PR.
+- **Deliverables:** `frontend/` ✅, `case-study/fraud-risk-case-study.md` ✅, `README.md` ✅, `.github/workflows/ci.yml` ✅.
 
 ---
 
