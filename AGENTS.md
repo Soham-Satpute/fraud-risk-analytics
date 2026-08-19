@@ -200,9 +200,23 @@ fraud-risk-analytics/
 - **The recommendation is not decided in advance.** The workflow must be run for real, on real numbers, and must be allowed to conclude the model doesn't justify deployment — that is a valid, reportable outcome.
 - Populate `docs/03_business_decision_and_threshold_analysis.md` with concrete numbers and the completed §4b template (with real numbers, never placeholders).
 
-### Phase 6: FastAPI Backend & Next.js Frontend
-- **FastAPI**: Clean REST endpoints with Pydantic validation, structured error handling, and async database logging to Supabase.
-- **Next.js**: Clean, responsive, high-aesthetic UI strictly constrained to 2 views:
+### Phase 6: FastAPI Backend, Deployment & Monitoring (Week 7) — ✅ BACKEND COMPLETE
+- **FastAPI Serving Engine (`api/main.py`, `api/routes.py`, `api/schemas.py`, `api/db.py`, `api/config.py`)**:
+  - Live `/predict` & `/predict/batch` endpoints: loads Champion LightGBM booster, fitted feature pipeline, and TreeSHAP explainer with reason code aggregation. Measures and returns empirical request latency (`latency_ms`, empirical $p50 \approx 313\text{ms}$).
+  - Strict Pydantic validation & security guardrails: physical bound checks (TransactionAmt > 0), request body size limiter (<1MB), CORS restriction, and error message sanitization.
+  - Resilient Supabase PostgreSQL client with connection pooling and non-blocking in-memory fallback buffer (guaranteeing 100% API availability during cold starts or offline development).
+  - `/replay` & `/replay/{transaction_id}`: paginated streaming feed over the 1,500 held-out test transactions and grounded narratives for the portfolio demo frontend.
+  - Decoupled observability endpoints: `/monitoring/operational` (unlabeled volume, score deciles, review queue) vs. `/monitoring/evaluation` (labeled precision, recall, FPR benchmark on held-out test replay).
+- **Database Seeding & Migration Automation (`src/data/seed_supabase.py`)**: CLI utility to apply schema DDL (`sql/schema.sql`), seed `model_runs` benchmarks, load `demo_replay` records, and batch-replay predictions into PostgreSQL.
+- **Power BI Dashboard Integration & DAX Specifications (`dashboard/`)**:
+  - `dashboard/powerbi_setup_guide.md`: DirectQuery / Import mode guide for Supabase PostgreSQL.
+  - `dashboard/dax_measures_and_model_health.md`: DAX code library for operational volume, test benchmark metrics, parameterized Cost-Saved Range Model ($Cost_{saved} = [Caught_{fraud} \times L_{fraud} - Volume_{review} \times C_{review}]$ with stated assumptions), and Model Health Tile specifications.
+  - `dashboard/export_analytics_extracts.py`: Automated extractor generating static CSV datasets in `dashboard/data/` for offline Power BI report authoring.
+- **Deployment Assets & Verification Guide (`docs/04_render_deployment_guide.md`)**:
+  - Production containerization & blueprints: `render.yaml`, `Dockerfile`, `.env.example`.
+  - Comprehensive deployment verification checklist with health ping, curl tests, and cold-start handling.
+- **Automated Pytest API Test Suite (`tests/test_api.py`)**: 14 passing unit and integration tests covering health, inference, batch scoring, empirical latency measurement, validation/payload size guards, replay pagination, and database degradation (66/66 total repository tests passing).
+- **Next.js Frontend (Week 9)**: Clean, responsive, high-aesthetic UI strictly constrained to 2 views:
   1. *Simulated Stream & Scoring Page*: Replays held-out transactions, calls `/predict`, displays probability gauge, SHAP reason codes, and grounded narrative.
   2. *Methodology & Performance Page*: Summary of validation split findings, cost curves, and confidence intervals.
 

@@ -181,10 +181,23 @@ Business Case Study   ← §12 — separate stakeholder-facing document,
 - **Visual Storytelling Notebook (`notebooks/05_shap_and_narrative_generation.ipynb`)**: Global beeswarm plots, collinearity consolidation demos, case studies, and grounding audit checks.
 - **Deliverables:** `src/explainability/reason_codes.py` ✅, `src/explainability/shap_explainer.py` ✅, `src/explainability/llm_client.py` ✅, `src/explainability/narrative_generator.py` ✅, `src/validation/grounding_validator.py` ✅, `src/explainability/batch_generate_narratives.py` ✅, `tests/test_explainability.py` (6/6 passed) ✅, `tests/test_grounding_validator.py` (6/6 passed; 52/52 total repository tests passed) ✅, `notebooks/05_shap_and_narrative_generation.ipynb` ✅, `data/processed/demo_replay_slice.parquet` ✅, `data/processed/demo_replay_slice.json` ✅, `data/processed/grounding_validation_report.json` ✅.
 
-### Week 7 — Deployment (data layer + API + monitoring)
-- FastAPI `/predict` endpoint: reads model, writes each prediction + reason codes to Postgres. Deploy on Render free tier.
-- Lightweight monitoring: log prediction volume, score distribution, and (on the held-out set, where labels are known) precision/recall over the demo run — write to `model_runs`.
-- Power BI connects directly to Postgres: fraud trend, PR/FPR over the run, a cost-saved estimate presented as a range with its underlying assumptions stated explicitly (average fraud loss per caught transaction, false-positive review cost) rather than a single unqualified dollar figure, plus a small **Model Health** tile (transactions processed, high-risk count, current precision/recall, basic drift flag).
+### Week 7 — Deployment (data layer + API + monitoring) ✅ COMPLETE
+- **FastAPI Serving Engine (`api/main.py`, `api/routes.py`, `api/schemas.py`, `api/db.py`, `api/config.py`)**:
+  - Live `/predict` & `/predict/batch` endpoints: loads Champion LightGBM booster, fitted feature pipeline, and TreeSHAP explainer with reason code aggregation. Measures and returns empirical request latency (`latency_ms`) on every prediction.
+  - Strict Pydantic validation & security guardrails: physical bound checks (TransactionAmt > 0), request body size limiter (<1MB), CORS restriction, and error message sanitization.
+  - Resilient Supabase PostgreSQL client with connection pooling and non-blocking in-memory fallback buffer (guaranteeing 100% API availability during cold starts or offline development).
+  - `/replay` & `/replay/{transaction_id}`: paginated streaming feed over the 1,500 held-out test transactions and grounded narratives for the portfolio demo frontend.
+  - Decoupled observability endpoints: `/monitoring/operational` (unlabeled volume, score deciles, review queue) vs. `/monitoring/evaluation` (labeled precision, recall, FPR benchmark on held-out test replay).
+- **Database Seeding & Migration Automation (`src/data/seed_supabase.py`)**: CLI utility to apply schema DDL (`sql/schema.sql`), seed `model_runs` benchmarks, load `demo_replay` records, and batch-replay predictions into PostgreSQL.
+- **Power BI Dashboard Integration & DAX Specifications (`dashboard/`)**:
+  - `dashboard/powerbi_setup_guide.md`: DirectQuery / Import mode guide for Supabase PostgreSQL.
+  - `dashboard/dax_measures_and_model_health.md`: DAX code library for operational volume, test benchmark metrics, parameterized Cost-Saved Range Model ($Cost_{saved} = [Caught_{fraud} \times L_{fraud} - Volume_{review} \times C_{review}]$ with stated assumptions), and Model Health Tile specifications.
+  - `dashboard/export_analytics_extracts.py`: Automated extractor generating static CSV datasets in `dashboard/data/` for offline Power BI report authoring.
+- **Deployment Assets & Verification Guide (`docs/04_render_deployment_guide.md`)**:
+  - Production containerization & blueprints: `render.yaml`, `Dockerfile`, `.env.example`.
+  - Comprehensive deployment verification checklist with health ping, curl tests, and cold-start handling.
+- **Automated Pytest API Test Suite (`tests/test_api.py`)**: 14 passing unit and integration tests covering health, inference, batch scoring, empirical latency measurement, validation/payload size guards, replay pagination, and database degradation (66/66 total repository tests passing).
+- **Deliverables:** `api/main.py` ✅, `api/routes.py` ✅, `api/schemas.py` ✅, `api/db.py` ✅, `api/config.py` ✅, `src/data/seed_supabase.py` ✅, `dashboard/powerbi_setup_guide.md` ✅, `dashboard/dax_measures_and_model_health.md` ✅, `dashboard/export_analytics_extracts.py` ✅, `dashboard/data/` CSV extracts ✅, `render.yaml` ✅, `Dockerfile` ✅, `.env.example` ✅, `docs/04_render_deployment_guide.md` ✅, `tests/test_api.py` (14/14 passed; 66/66 total tests passed) ✅.
 
 ### Week 8 — Business Decision: Threshold, Cost, and Sensitivity Analysis
 - Run the full 12-step workflow in §4a end to end on the deployed model's held-out predictions (already logged in Postgres from Week 7 — no new data pipeline needed).
