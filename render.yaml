@@ -19,5 +19,3 @@ services:
         value: "false"
       - key: CORS_ORIGINS
         value: "http://localhost:3000,https://*.vercel.app"
-      - key: DATABASE_URL
-        sync: false # Set in Render Dashboard from Supabase connection string
