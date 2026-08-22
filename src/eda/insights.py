@@ -124,14 +124,25 @@ def analyze_diurnal_patterns(df: pd.DataFrame) -> dict[str, Any]:
     """
     Analyze fraud rates across the 24-hour intraday cycle strictly on training data.
     Identifies high-risk attack windows vs. baseline daytime volume.
+
+    Note: hour_of_day is derived on-the-fly from TransactionDT using the same
+    formula as FraudFeaturePipeline (REFERENCE_DT_ORIGIN=86400). The raw integer
+    is no longer persisted as a separate parquet column — only sin/cos encodings
+    are output by the pipeline — so we recompute it here for EDA purposes only.
     """
     logger.info("Computing Story 1: Diurnal Attack Window...")
+
+    # Derive hour_of_day from TransactionDT (same formula as engineer.py)
+    _REFERENCE_DT_ORIGIN = 86400
+    rel_seconds = (df["TransactionDT"].astype(int) - _REFERENCE_DT_ORIGIN).clip(lower=0)
+    hour_of_day_series = (rel_seconds % 86400) // 3600
+
     hourly = []
     total_tx = len(df)
     global_fraud_rate = float((df["isFraud"] == 1).mean())
 
     for h in range(24):
-        h_df = df[df["hour_of_day"] == h]
+        h_df = df[hour_of_day_series == h]
         n = len(h_df)
         k = int((h_df["isFraud"] == 1).sum())
         rate = k / n if n > 0 else 0.0
@@ -147,8 +158,8 @@ def analyze_diurnal_patterns(df: pd.DataFrame) -> dict[str, Any]:
         })
 
     # Compare peak night attack window (hours 0-6) vs peak day business window (hours 12-18)
-    night_df = df[df["hour_of_day"].isin([0, 1, 2, 3, 4, 5, 6])]
-    day_df = df[df["hour_of_day"].isin([12, 13, 14, 15, 16, 17, 18])]
+    night_df = df[hour_of_day_series.isin([0, 1, 2, 3, 4, 5, 6])]
+    day_df = df[hour_of_day_series.isin([12, 13, 14, 15, 16, 17, 18])]
 
     k_night, n_night = int((night_df["isFraud"] == 1).sum()), len(night_df)
     k_day, n_day = int((day_df["isFraud"] == 1).sum()), len(day_df)

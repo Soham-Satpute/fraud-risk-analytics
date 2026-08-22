@@ -2,96 +2,130 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ShieldAlert, BarChart3, Terminal, Activity } from "lucide-react";
+import { ShieldCheck, ExternalLink } from "lucide-react";
 
 export function Navigation() {
   const pathname = usePathname();
 
   return (
-    <header style={{
-      borderBottom: "1px solid var(--border-subtle)",
-      background: "rgba(7, 10, 19, 0.85)",
-      backdropFilter: "blur(12px)",
-      position: "sticky",
-      top: 0,
-      zIndex: 50,
-    }}>
-      <div className="container" style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        height: "72px",
-      }}>
-        {/* Logo & Identity */}
-        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-          <div style={{
-            width: "40px",
-            height: "40px",
-            borderRadius: "10px",
-            background: "linear-gradient(135deg, #38bdf8, #3b82f6)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            boxShadow: "0 0 16px rgba(56, 189, 248, 0.3)",
-          }}>
-            <ShieldAlert size={22} color="#070a13" strokeWidth={2.5} />
+    <header
+      style={{
+        borderBottom: "1px solid var(--border)",
+        background: "var(--bg-app)",
+        position: "sticky",
+        top: 0,
+        zIndex: 50,
+      }}
+    >
+      <div
+        className="container"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          height: "60px",
+        }}
+      >
+        {/* Logo */}
+        <Link href="/" style={{ display: "flex", alignItems: "center", gap: "10px", textDecoration: "none" }}>
+          <div
+            style={{
+              width: "32px",
+              height: "32px",
+              borderRadius: "var(--radius-md)",
+              background: "var(--accent-blue)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <ShieldCheck size={18} color="#fff" strokeWidth={2.5} />
           </div>
           <div>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <span style={{ fontWeight: 700, fontSize: "1.1rem", letterSpacing: "-0.02em" }}>
-                Fraud Risk Analytics
-              </span>
-              <span className="badge badge-cyan" style={{ fontSize: "0.65rem", padding: "2px 8px" }}>
-                v1.0 Deployed
-              </span>
-            </div>
-            <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", margin: 0 }}>
-              Defensible Fintech Risk Scoring & Grounded Explanations
-            </p>
+            <span style={{ fontWeight: 700, fontSize: "0.95rem", color: "var(--text-primary)" }}>
+              Fraud Risk Analytics
+            </span>
+            <span
+              style={{
+                display: "block",
+                fontSize: "0.7rem",
+                color: "var(--text-muted)",
+                lineHeight: 1.2,
+              }}
+            >
+              Portfolio-scale deployed demo
+            </span>
           </div>
-        </div>
+        </Link>
 
-        {/* 2-Page Navigation Links */}
-        <nav style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+        {/* Nav links */}
+        <nav style={{ display: "flex", alignItems: "center", gap: "4px" }}>
           <Link
             href="/"
             style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              padding: "8px 16px",
+              padding: "6px 14px",
               borderRadius: "var(--radius-md)",
-              fontSize: "0.9rem",
+              fontSize: "0.875rem",
               fontWeight: 500,
-              color: pathname === "/" ? "var(--accent-cyan)" : "var(--text-secondary)",
-              background: pathname === "/" ? "var(--accent-cyan-bg)" : "transparent",
-              border: pathname === "/" ? "1px solid rgba(56, 189, 248, 0.3)" : "1px solid transparent",
-              transition: "all var(--transition-fast)",
+              color: pathname === "/" ? "var(--text-primary)" : "var(--text-secondary)",
+              borderBottom: pathname === "/" ? "2px solid var(--accent-blue)" : "2px solid transparent",
+              transition: "color var(--transition)",
             }}
           >
-            <Activity size={16} />
-            <span>Interactive Demo</span>
+            Story
           </Link>
-
           <Link
-            href="/methodology"
+            href="/demo"
             style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              padding: "8px 16px",
+              padding: "6px 14px",
               borderRadius: "var(--radius-md)",
-              fontSize: "0.9rem",
+              fontSize: "0.875rem",
               fontWeight: 500,
-              color: pathname === "/methodology" ? "var(--accent-cyan)" : "var(--text-secondary)",
-              background: pathname === "/methodology" ? "var(--accent-cyan-bg)" : "transparent",
-              border: pathname === "/methodology" ? "1px solid rgba(56, 189, 248, 0.3)" : "1px solid transparent",
-              transition: "all var(--transition-fast)",
+              color: pathname.startsWith("/demo") ? "var(--text-primary)" : "var(--text-secondary)",
+              borderBottom: pathname.startsWith("/demo") ? "2px solid var(--accent-blue)" : "2px solid transparent",
+              transition: "color var(--transition)",
             }}
           >
-            <BarChart3 size={16} />
-            <span>Methodology & Analytics</span>
+            Live Demo
           </Link>
+          <a
+            href="https://github.com/Soham-Satpute/fraud-risk-analytics/blob/main/case-study/fraud-risk-case-study.md"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              padding: "6px 14px",
+              borderRadius: "var(--radius-md)",
+              fontSize: "0.875rem",
+              fontWeight: 500,
+              color: "var(--text-secondary)",
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+              transition: "color var(--transition)",
+            }}
+          >
+            <span>Case Study</span>
+            <ExternalLink size={12} opacity={0.7} />
+          </a>
+          <a
+            href="https://github.com/Soham-Satpute/fraud-risk-analytics"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              padding: "6px 14px",
+              borderRadius: "var(--radius-md)",
+              fontSize: "0.875rem",
+              fontWeight: 500,
+              color: "var(--text-secondary)",
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+              transition: "color var(--transition)",
+            }}
+          >
+            <span>GitHub</span>
+            <ExternalLink size={12} opacity={0.7} />
+          </a>
         </nav>
       </div>
     </header>

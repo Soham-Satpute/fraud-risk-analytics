@@ -219,19 +219,30 @@ class FraudFeaturePipeline:
         # -------------------------------------------------------------------
         # 5. Cyclical Temporal Features (Diurnal 24h & Intraweek 7d)
         # -------------------------------------------------------------------
+        # DESIGN DECISION: Only the sin/cos encodings are added to the output
+        # feature set. The raw integer hour_of_day and day_of_week are computed
+        # here as local intermediates and deliberately NOT added to new_cols.
+        # Rationale:
+        #   - Cyclical encoding (sin/cos) is strictly superior for tree-based
+        #     models because it preserves the circular boundary property:
+        #     hour 23 and hour 0 are adjacent, not 23 units apart.
+        #   - Exposing the raw integer alongside sin/cos adds no predictive
+        #     signal — a tree can reconstruct any monotonic function from the
+        #     sin/cos pair — while bloating the feature count with a redundant
+        #     column that can mislead linear models into treating the cycle as
+        #     a linear progression.
+        # -------------------------------------------------------------------
         if "TransactionDT" in out_df.columns:
             dt_vals = out_df["TransactionDT"].astype(int).values
             rel_seconds = np.maximum(dt_vals - self.dt_origin, 0)
 
-            # Intraday hour: [0, 23]
+            # Intraday hour [0, 23] — local intermediate only
             hour_of_day = (rel_seconds % 86400) // 3600
-            new_cols["hour_of_day"] = hour_of_day.astype(np.int8)
             new_cols["hour_sin"] = np.sin(2.0 * np.pi * hour_of_day / 24.0).astype(np.float32)
             new_cols["hour_cos"] = np.cos(2.0 * np.pi * hour_of_day / 24.0).astype(np.float32)
 
-            # Intraweek day of week: [0, 6]
+            # Intraweek day of week [0, 6] — local intermediate only
             day_of_week = (rel_seconds // 86400) % 7
-            new_cols["day_of_week"] = day_of_week.astype(np.int8)
             new_cols["dow_sin"] = np.sin(2.0 * np.pi * day_of_week / 7.0).astype(np.float32)
             new_cols["dow_cos"] = np.cos(2.0 * np.pi * day_of_week / 7.0).astype(np.float32)
 

@@ -136,7 +136,10 @@ class ReplayTransactionItem(BaseModel):
 
 class ReplayListResponse(BaseModel):
     """Paginated list of replay transactions for the simulated streaming demo."""
-    transactions: list[ReplayTransactionItem]
+    model_config = ConfigDict(extra="allow")
+
+    items: list[ReplayTransactionItem]  # frontend reads data.items
+    transactions: list[ReplayTransactionItem] = Field(default_factory=list)  # test client compatibility
     total_count: int
     limit: int
     offset: int

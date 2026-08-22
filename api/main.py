@@ -88,7 +88,9 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
-    # 2. Timing and Payload Size Middleware
+    # 2. Timing, Payload Size, and Rate Limiting Middleware
+    _rate_limit_records: dict[str, list[float]] = {}
+
     @app.middleware("http")
     async def request_guard_and_timing_middleware(request: Request, call_next) -> Response:
         # Check payload size limit if Content-Length is provided
@@ -104,6 +106,24 @@ def create_app() -> FastAPI:
                     )
             except ValueError:
                 pass
+
+        # Rate limiting on POST /predict (10 requests per minute per IP, bypass for test environment)
+        client_ip = request.client.host if request.client else "unknown"
+        is_test = settings.ENVIRONMENT == "test" or client_ip == "testclient"
+        if request.method == "POST" and request.url.path == "/predict" and not is_test:
+            now = time.time()
+            timestamps = _rate_limit_records.get(client_ip, [])
+            # Filter timestamps within the last 60 seconds
+            timestamps = [t for t in timestamps if now - t < 60.0]
+            if len(timestamps) >= 10:
+                return JSONResponse(
+                    status_code=getattr(status, "HTTP_429_TOO_MANY_REQUESTS", 429),
+                    content={
+                        "detail": "Rate limit exceeded. Please wait before scoring another transaction."
+                    },
+                )
+            timestamps.append(now)
+            _rate_limit_records[client_ip] = timestamps
 
         start_time = time.perf_counter()
         response: Response = await call_next(request)

@@ -340,7 +340,7 @@ async def predict_batch_transactions(
     tags=["Demo Replay"],
 )
 async def get_demo_replay_stream(
-    limit: int = Query(20, ge=1, le=100, description="Page batch size"),
+    limit: int = Query(20, ge=1, le=2000, description="Page batch size"),
     offset: int = Query(0, ge=0, description="Offset position in demo slice"),
 ) -> ReplayListResponse:
     """
@@ -369,6 +369,7 @@ async def get_demo_replay_stream(
     ]
 
     return ReplayListResponse(
+        items=items,
         transactions=items,
         total_count=total_count,
         limit=limit,

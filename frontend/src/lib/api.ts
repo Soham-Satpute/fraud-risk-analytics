@@ -9,10 +9,12 @@ export interface ReasonCode {
   feature: string;
   display_name: string;
   value: string | number;
+  feature_value?: string | number;
   shap_value: number;
-  direction: "INCREASES_RISK" | "REDUCES_RISK";
+  direction: "INCREASES_RISK" | "REDUCES_RISK" | "DECREASES_RISK";
   unit?: string;
   cluster_name?: string;
+  description?: string;
 }
 
 export interface GroundedNarrative {
@@ -29,14 +31,9 @@ export interface DemoReplayItem {
   TransactionAmt: number;
   ProductCD?: string;
   card1?: number | string;
-  card2?: number | string;
-  card3?: number | string;
   card4?: string;
   card6?: string;
-  addr1?: number | string;
-  addr2?: number | string;
   P_emaildomain?: string;
-  R_emaildomain?: string;
   isFraud?: number;
   predicted_probability: number;
   predicted_risk_tier: "LOW" | "MEDIUM" | "HIGH";
@@ -151,6 +148,107 @@ export interface BusinessDecisionData {
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 /**
+ * Robust parser that converts raw Markdown or JSON narrative strings
+ * into structured GroundedNarrative fields.
+ */
+export function parseGroundedNarrative(raw: any): GroundedNarrative | undefined {
+  if (!raw) return undefined;
+  if (typeof raw === "object") {
+    if (raw.risk_summary || raw.primary_drivers || raw.recommended_action) {
+      return raw;
+    }
+  }
+
+  const text = typeof raw === "string" ? raw : String(raw);
+  if (!text.trim()) return undefined;
+
+  // Attempt JSON parse first
+  if (text.trim().startsWith("{")) {
+    try {
+      const parsed = JSON.parse(text);
+      if (parsed && typeof parsed === "object") return parsed;
+    } catch {
+      // Fall through to Markdown parsing
+    }
+  }
+
+  const result: GroundedNarrative = {
+    grounding_verified: true,
+  };
+
+  // 1. Extract Primary Risk Drivers section
+  const riskDriversMatch = text.match(/####\s*Primary Risk Drivers:?\s*([\s\S]*?)(?=####|$)/i);
+  if (riskDriversMatch) {
+    result.primary_drivers = riskDriversMatch[1].trim();
+  }
+
+  // 2. Extract Mitigating Factors section
+  const mitigatingMatch = text.match(/####\s*Mitigating Factors:?\s*([\s\S]*?)(?=####|$)/i);
+  if (mitigatingMatch) {
+    result.mitigating_factors = mitigatingMatch[1].trim();
+  }
+
+  // 3. Extract Recommended Workflow section
+  const workflowMatch = text.match(/####\s*Recommended Workflow:?\s*([\s\S]*?)(?=####|$)/i);
+  if (workflowMatch) {
+    result.recommended_action = workflowMatch[1].trim();
+  }
+
+  // 4. Construct clean risk summary header
+  const tierMatch = text.match(/FRAUD RISK ASSESSMENT:\s*([A-Z]+)/i);
+  const scoreMatch = text.match(/Score:\s*([0-9.]+)/i);
+  const actionMatch = text.match(/Decision Action:\s*`?([A-Z_]+)`?/i);
+
+  if (tierMatch || scoreMatch) {
+    const tier = tierMatch ? tierMatch[1] : "EVALUATED";
+    const scorePct = scoreMatch ? `${(parseFloat(scoreMatch[1]) * 100).toFixed(1)}%` : "";
+    const action = actionMatch ? actionMatch[1].replace(/_/g, " ") : "";
+    result.risk_summary = `Assessed as ${tier} risk (${scorePct} probability). Recommended action: ${action || "Review"}.`;
+  } else {
+    const headerPart = text.split(/####/)[0].replace(/^###\s*/, "").replace(/[*`#]/g, "").trim();
+    result.risk_summary = headerPart || "Assessment generated from SHAP evidence.";
+  }
+
+  return result;
+}
+
+/** Map snake_case API replay item → DemoReplayItem */
+function mapReplayItem(r: any): DemoReplayItem {
+  const narrative = parseGroundedNarrative(r.grounded_narrative);
+
+  // Reason codes: API returns top_reason_codes (list of dicts)
+  const rawCodes = r.top_reason_codes || r.reason_codes || [];
+  const codes: ReasonCode[] = rawCodes.map((rc: any) => ({
+    feature: rc.feature || "",
+    display_name: rc.display_name || rc.feature || "",
+    value: rc.feature_value ?? rc.value ?? "",
+    feature_value: rc.feature_value ?? rc.value ?? "",
+    shap_value: rc.shap_value || 0,
+    direction: rc.direction || "INCREASES_RISK",
+    description: rc.description || "",
+    cluster_name: rc.cluster_name,
+  }));
+
+  return {
+    TransactionID: r.transaction_id ?? r.TransactionID,
+    TransactionDT: r.transaction_dt ?? r.TransactionDT,
+    TransactionAmt: r.transaction_amt ?? r.TransactionAmt ?? 0,
+    ProductCD: r.product_cd ?? r.ProductCD ?? "W",
+    card1: r.card1,
+    card4: r.card4,
+    card6: r.card6,
+    P_emaildomain: r.p_emaildomain ?? r.P_emaildomain,
+    isFraud: r.is_fraud ?? r.isFraud ?? 0,
+    predicted_probability: r.fraud_probability ?? r.predicted_probability ?? 0,
+    predicted_risk_tier: (r.predicted_risk_tier as "LOW" | "MEDIUM" | "HIGH") ?? "LOW",
+    decision_action: (r.decision_action as "APPROVE" | "STEP_UP_AUTH" | "MANUAL_REVIEW") ?? "APPROVE",
+    recommended_workflow: r.recommended_workflow ?? "Approve transaction straight-through",
+    reason_codes: codes,
+    grounded_narrative: narrative,
+  };
+}
+
+/**
  * Fetch replay transaction slice with static fallback.
  */
 export async function fetchReplayData(): Promise<DemoReplayItem[]> {
@@ -159,7 +257,7 @@ export async function fetchReplayData(): Promise<DemoReplayItem[]> {
     if (res.ok) {
       const data = await res.json();
       if (Array.isArray(data.items) && data.items.length > 0) {
-        return data.items;
+        return data.items.map(mapReplayItem);
       }
     }
   } catch (err) {
@@ -167,11 +265,15 @@ export async function fetchReplayData(): Promise<DemoReplayItem[]> {
   }
 
   // Fallback to static JSON extract
-  const staticRes = await fetch("/data/demo_replay_slice.json");
-  if (!staticRes.ok) {
-    throw new Error("Failed to load replay dataset.");
-  }
-  return await staticRes.json();
+  try {
+    const staticRes = await fetch("/data/demo_replay_slice.json");
+    if (staticRes.ok) {
+      const raw = await staticRes.json();
+      if (Array.isArray(raw)) return raw.map(mapReplayItem);
+    }
+  } catch { /* ignore */ }
+
+  return [];
 }
 
 /**
