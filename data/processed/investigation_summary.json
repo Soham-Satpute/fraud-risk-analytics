@@ -1,0 +1,21 @@
+{
+  "total_rows": 590540,
+  "total_columns": 435,
+  "fraud_rate_pct": 3.499,
+  "identity_join_coverage_pct": 23.8,
+  "transactionDT_span_days": 182.0,
+  "transactionDT_span_weeks": 26.0,
+  "fraud_rate_first_half": 0.034,
+  "fraud_rate_second_half": 0.0361,
+  "unique_entity_proxies": 94846,
+  "avg_transactions_per_proxy": 6.2,
+  "entity_overlap_temporal_pct": 67.58,
+  "entity_overlap_random_pct": 74.67,
+  "entity_overlap_grouped_pct": 0.0,
+  "fraud_rate_recurring_entities_temporal": 0.0347,
+  "fraud_rate_new_entities_temporal": 0.0323,
+  "v_missingness_clusters": 7,
+  "v_near_duplicate_pairs": 162,
+  "vdc_high_redundancy_with_engineered": 12,
+  "features_unstable_psi_temporal": 5
+}

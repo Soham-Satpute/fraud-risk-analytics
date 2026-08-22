@@ -1,0 +1,356 @@
+{
+  "generated_at": "2026-08-19T11:10:35Z",
+  "dataset_split": "Temporal Split (Train <= 12,192,854 | Test > 12,192,854)",
+  "train_samples": 472432,
+  "test_samples": 118108,
+  "scale_pos_weight": 27.461,
+  "champion_model": {
+    "name": "LightGBM Classifier (Class-Weighted)",
+    "test_metrics": {
+      "pr_auc": 0.54416,
+      "roc_auc": 0.90073,
+      "log_loss": 0.20273,
+      "brier_score": 0.05512
+    },
+    "recall_at_1pct_fpr": {
+      "target_fpr": 0.01,
+      "operating_threshold": 0.78058,
+      "achieved_fpr": 0.00999,
+      "recall": 0.47244,
+      "precision": 0.62766,
+      "review_rate": 0.0259
+    },
+    "recall_at_5pct_fpr": {
+      "target_fpr": 0.05,
+      "operating_threshold": 0.51973,
+      "achieved_fpr": 0.04989,
+      "recall": 0.6565,
+      "precision": 0.31922,
+      "review_rate": 0.07077
+    },
+    "bootstrapped_95_ci_1000_resamples": {
+      "pr_auc": {
+        "point_estimate": 0.54416,
+        "ci_95_low": 0.52779,
+        "ci_95_high": 0.56022,
+        "std_error": 0.00839
+      },
+      "roc_auc": {
+        "point_estimate": 0.90073,
+        "ci_95_low": 0.89523,
+        "ci_95_high": 0.9062,
+        "std_error": 0.0029
+      },
+      "recall_at_1pct_fpr": {
+        "point_estimate": 0.47244,
+        "ci_95_low": 0.45617,
+        "ci_95_high": 0.48902,
+        "std_error": 0.00856
+      },
+      "recall_at_5pct_fpr": {
+        "point_estimate": 0.6565,
+        "ci_95_low": 0.64141,
+        "ci_95_high": 0.67148,
+        "std_error": 0.00788
+      }
+    }
+  },
+  "baseline_model": {
+    "name": "Logistic Regression (StandardScaler + Balanced)",
+    "test_metrics": {
+      "pr_auc": 0.27463,
+      "roc_auc": 0.80916,
+      "log_loss": 0.53981,
+      "brier_score": 0.1668
+    },
+    "recall_at_1pct_fpr": {
+      "target_fpr": 0.01,
+      "operating_threshold": 0.98599,
+      "achieved_fpr": 0.00981,
+      "recall": 0.15084,
+      "precision": 0.35393,
+      "review_rate": 0.01466
+    },
+    "recall_at_5pct_fpr": {
+      "target_fpr": 0.05,
+      "operating_threshold": 0.70605,
+      "achieved_fpr": 0.04997,
+      "recall": 0.41757,
+      "precision": 0.22945,
+      "review_rate": 0.06262
+    }
+  },
+  "ablation_model": {
+    "name": "LightGBM Classifier (Unweighted)",
+    "test_metrics": {
+      "pr_auc": 0.56069,
+      "roc_auc": 0.91007,
+      "log_loss": 0.08718,
+      "brier_score": 0.02089
+    },
+    "recall_at_1pct_fpr": {
+      "target_fpr": 0.01,
+      "operating_threshold": 0.23239,
+      "achieved_fpr": 0.00997,
+      "recall": 0.48376,
+      "precision": 0.63358,
+      "review_rate": 0.02627
+    },
+    "recall_at_5pct_fpr": {
+      "target_fpr": 0.05,
+      "operating_threshold": 0.06868,
+      "achieved_fpr": 0.04995,
+      "recall": 0.65994,
+      "precision": 0.32009,
+      "review_rate": 0.07094
+    }
+  },
+  "unseen_entity_benchmark (0% overlap lower bound)": {
+    "total_unseen_transactions": 10952,
+    "unseen_fraud_count": 330,
+    "unseen_fraud_rate_pct": 3.013,
+    "pr_auc": 0.43026,
+    "roc_auc": 0.87335,
+    "recall_at_1pct_fpr": 0.36364,
+    "recall_at_5pct_fpr": 0.53939
+  },
+  "top_feature_importances": [
+    {
+      "feature": "card1",
+      "importance_gain": 2751033.389389038,
+      "importance_split": 2587
+    },
+    {
+      "feature": "id_19",
+      "importance_gain": 980575.0350422859,
+      "importance_split": 319
+    },
+    {
+      "feature": "V294",
+      "importance_gain": 524904.321762085,
+      "importance_split": 16
+    },
+    {
+      "feature": "card2",
+      "importance_gain": 462618.8734674454,
+      "importance_split": 666
+    },
+    {
+      "feature": "C13",
+      "importance_gain": 361436.00520878285,
+      "importance_split": 295
+    },
+    {
+      "feature": "C1",
+      "importance_gain": 334658.79522642493,
+      "importance_split": 252
+    },
+    {
+      "feature": "addr1",
+      "importance_gain": 330759.447722435,
+      "importance_split": 743
+    },
+    {
+      "feature": "C14",
+      "importance_gain": 292820.9753584862,
+      "importance_split": 184
+    },
+    {
+      "feature": "V258",
+      "importance_gain": 247015.2466765046,
+      "importance_split": 86
+    },
+    {
+      "feature": "D2",
+      "importance_gain": 230157.92777626961,
+      "importance_split": 124
+    },
+    {
+      "feature": "V91",
+      "importance_gain": 228896.5032801344,
+      "importance_split": 15
+    },
+    {
+      "feature": "DeviceInfo",
+      "importance_gain": 140386.28002929688,
+      "importance_split": 278
+    },
+    {
+      "feature": "freq_card1",
+      "importance_gain": 129599.28705382533,
+      "importance_split": 421
+    },
+    {
+      "feature": "V70",
+      "importance_gain": 112255.21557777748,
+      "importance_split": 18
+    },
+    {
+      "feature": "id_20",
+      "importance_gain": 108866.59441184998,
+      "importance_split": 329
+    },
+    {
+      "feature": "R_emaildomain",
+      "importance_gain": 104679.22891616821,
+      "importance_split": 79
+    },
+    {
+      "feature": "C8",
+      "importance_gain": 103351.07512000203,
+      "importance_split": 35
+    },
+    {
+      "feature": "C11",
+      "importance_gain": 102005.66148519516,
+      "importance_split": 120
+    },
+    {
+      "feature": "P_emaildomain",
+      "importance_gain": 82420.45868301392,
+      "importance_split": 187
+    },
+    {
+      "feature": "id_31",
+      "importance_gain": 75102.21192550659,
+      "importance_split": 265
+    },
+    {
+      "feature": "amt_zscore_email",
+      "importance_gain": 69957.87483605742,
+      "importance_split": 176
+    },
+    {
+      "feature": "V285",
+      "importance_gain": 54930.826655864716,
+      "importance_split": 19
+    },
+    {
+      "feature": "TransactionAmt",
+      "importance_gain": 52601.78856430948,
+      "importance_split": 156
+    },
+    {
+      "feature": "D3",
+      "importance_gain": 50312.1314496994,
+      "importance_split": 85
+    },
+    {
+      "feature": "C5",
+      "importance_gain": 48706.90976781398,
+      "importance_split": 48
+    }
+  ],
+  "threshold_sweep_summary": [
+    {
+      "threshold": 0.01,
+      "recall": 0.9953,
+      "precision": 0.0385,
+      "fpr": 0.8855,
+      "review_rate": 0.8893,
+      "true_positives": 4045,
+      "false_positives": 100990,
+      "false_negatives": 19,
+      "true_negatives": 13054
+    },
+    {
+      "threshold": 0.03,
+      "recall": 0.9759,
+      "precision": 0.0475,
+      "fpr": 0.6969,
+      "review_rate": 0.7065,
+      "true_positives": 3966,
+      "false_positives": 79481,
+      "false_negatives": 98,
+      "true_negatives": 34563
+    },
+    {
+      "threshold": 0.05,
+      "recall": 0.9596,
+      "precision": 0.0556,
+      "fpr": 0.581,
+      "review_rate": 0.594,
+      "true_positives": 3900,
+      "false_positives": 66257,
+      "false_negatives": 164,
+      "true_negatives": 47787
+    },
+    {
+      "threshold": 0.07,
+      "recall": 0.9427,
+      "precision": 0.063,
+      "fpr": 0.4995,
+      "review_rate": 0.5147,
+      "true_positives": 3831,
+      "false_positives": 56964,
+      "false_negatives": 233,
+      "true_negatives": 57080
+    },
+    {
+      "threshold": 0.09,
+      "recall": 0.9272,
+      "precision": 0.0702,
+      "fpr": 0.4376,
+      "review_rate": 0.4545,
+      "true_positives": 3768,
+      "false_positives": 49907,
+      "false_negatives": 296,
+      "true_negatives": 64137
+    },
+    {
+      "threshold": 0.11,
+      "recall": 0.9124,
+      "precision": 0.077,
+      "fpr": 0.3899,
+      "review_rate": 0.4079,
+      "true_positives": 3708,
+      "false_positives": 44470,
+      "false_negatives": 356,
+      "true_negatives": 69574
+    },
+    {
+      "threshold": 0.13,
+      "recall": 0.8996,
+      "precision": 0.0839,
+      "fpr": 0.3498,
+      "review_rate": 0.3687,
+      "true_positives": 3656,
+      "false_positives": 39896,
+      "false_negatives": 408,
+      "true_negatives": 74148
+    },
+    {
+      "threshold": 0.15,
+      "recall": 0.8875,
+      "precision": 0.0913,
+      "fpr": 0.3148,
+      "review_rate": 0.3345,
+      "true_positives": 3607,
+      "false_positives": 35903,
+      "false_negatives": 457,
+      "true_negatives": 78141
+    },
+    {
+      "threshold": 0.17,
+      "recall": 0.874,
+      "precision": 0.1003,
+      "fpr": 0.2795,
+      "review_rate": 0.3,
+      "true_positives": 3552,
+      "false_positives": 31877,
+      "false_negatives": 512,
+      "true_negatives": 82167
+    },
+    {
+      "threshold": 0.19,
+      "recall": 0.8583,
+      "precision": 0.1087,
+      "fpr": 0.2507,
+      "review_rate": 0.2716,
+      "true_positives": 3488,
+      "false_positives": 28590,
+      "false_negatives": 576,
+      "true_negatives": 85454
+    }
+  ]
+}

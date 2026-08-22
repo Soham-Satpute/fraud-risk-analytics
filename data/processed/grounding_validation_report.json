@@ -1,0 +1,26 @@
+{
+  "generated_at": "2026-08-18T11:03:17Z",
+  "total_transactions_evaluated": 1500,
+  "llm_provider_configured": "deterministic",
+  "empirical_initial_grounding_pass_rate": 93.47,
+  "initial_passed_count": 1402,
+  "fallback_substituted_count": 98,
+  "final_verified_output_rate": 100.0,
+  "grounding_score_distribution": {
+    "mean": 0.997,
+    "median": 1.0,
+    "min": 0.875,
+    "max": 1.0
+  },
+  "risk_tier_distribution": {
+    "LOW": 712,
+    "MEDIUM": 461,
+    "HIGH": 327
+  },
+  "decision_action_distribution": {
+    "APPROVE": 712,
+    "STEP_UP_AUTH": 461,
+    "MANUAL_REVIEW": 327
+  },
+  "execution_time_seconds": 7.29
+}

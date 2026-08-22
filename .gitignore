@@ -10,20 +10,24 @@ venv/
 env/
 ENV/
 
-# Data files (NEVER commit raw or intermediate large data)
-data/
+# Data files (keep large raw & parquet datasets ignored)
+/data/raw/
+/data/processed/*.parquet
+/data/processed/*.csv
 *.csv
 *.parquet
 *.zip
 *.tar.gz
 *.pkl
-*.joblib
 
-# Models and large serialized artifacts
-models/*.joblib
-models/*.json
-models/*.pkl
-!models/.gitkeep
+# Allow processed demo JSON & metadata required by API and frontend
+!/data/processed/*.json
+!/frontend/public/data/**
+
+# Allow lightweight deployed model artifacts (<10MB) for Render
+!/models/*.joblib
+!/models/*.json
+!/models/.gitkeep
 
 # Environment variables & secrets
 .env

@@ -1,0 +1,545 @@
+{
+  "dataset_scope": "Training Partition Strictly (TransactionDT <= 12,192,854)",
+  "total_train_records": 472432,
+  "total_train_fraud": 16599,
+  "global_train_fraud_rate_pct": 3.514,
+  "story_1_diurnal_attack_window": {
+    "story_name": "Diurnal Attack Window & Off-Peak Multiplier",
+    "global_training_fraud_rate_pct": 3.514,
+    "night_window_stats": {
+      "hours": "00:00 - 06:59 (Relative)",
+      "total_transactions": 122414,
+      "fraud_count": 4827,
+      "fraud_rate_pct": 3.943,
+      "ci_95_pct": [
+        3.836,
+        4.054
+      ]
+    },
+    "daytime_window_stats": {
+      "hours": "12:00 - 18:59 (Relative)",
+      "total_transactions": 169379,
+      "fraud_count": 4904,
+      "fraud_rate_pct": 2.895,
+      "ci_95_pct": [
+        2.817,
+        2.976
+      ]
+    },
+    "night_vs_day_risk_ratio": {
+      "risk_ratio": 1.362,
+      "ci_low": 1.31,
+      "ci_high": 1.416
+    },
+    "hourly_breakdown": [
+      {
+        "hour": 0,
+        "total_transactions": 30557,
+        "fraud_count": 979,
+        "fraud_rate_pct": 3.204,
+        "ci_95_low_pct": 3.012,
+        "ci_95_high_pct": 3.407,
+        "volume_share_pct": 6.47
+      },
+      {
+        "hour": 1,
+        "total_transactions": 26772,
+        "fraud_count": 862,
+        "fraud_rate_pct": 3.22,
+        "ci_95_low_pct": 3.015,
+        "ci_95_high_pct": 3.438,
+        "volume_share_pct": 5.67
+      },
+      {
+        "hour": 2,
+        "total_transactions": 21923,
+        "fraud_count": 811,
+        "fraud_rate_pct": 3.699,
+        "ci_95_low_pct": 3.458,
+        "ci_95_high_pct": 3.957,
+        "volume_share_pct": 4.64
+      },
+      {
+        "hour": 3,
+        "total_transactions": 17102,
+        "fraud_count": 617,
+        "fraud_rate_pct": 3.608,
+        "ci_95_low_pct": 3.338,
+        "ci_95_high_pct": 3.898,
+        "volume_share_pct": 3.62
+      },
+      {
+        "hour": 4,
+        "total_transactions": 12603,
+        "fraud_count": 625,
+        "fraud_rate_pct": 4.959,
+        "ci_95_low_pct": 4.594,
+        "ci_95_high_pct": 5.352,
+        "volume_share_pct": 2.67
+      },
+      {
+        "hour": 5,
+        "total_transactions": 8392,
+        "fraud_count": 559,
+        "fraud_rate_pct": 6.661,
+        "ci_95_low_pct": 6.147,
+        "ci_95_high_pct": 7.215,
+        "volume_share_pct": 1.78
+      },
+      {
+        "hour": 6,
+        "total_transactions": 5065,
+        "fraud_count": 374,
+        "fraud_rate_pct": 7.384,
+        "ci_95_low_pct": 6.696,
+        "ci_95_high_pct": 8.137,
+        "volume_share_pct": 1.07
+      },
+      {
+        "hour": 7,
+        "total_transactions": 3156,
+        "fraud_count": 319,
+        "fraud_rate_pct": 10.108,
+        "ci_95_low_pct": 9.104,
+        "ci_95_high_pct": 11.208,
+        "volume_share_pct": 0.67
+      },
+      {
+        "hour": 8,
+        "total_transactions": 2181,
+        "fraud_count": 212,
+        "fraud_rate_pct": 9.72,
+        "ci_95_low_pct": 8.547,
+        "ci_95_high_pct": 11.035,
+        "volume_share_pct": 0.46
+      },
+      {
+        "hour": 9,
+        "total_transactions": 1844,
+        "fraud_count": 195,
+        "fraud_rate_pct": 10.575,
+        "ci_95_low_pct": 9.252,
+        "ci_95_high_pct": 12.061,
+        "volume_share_pct": 0.39
+      },
+      {
+        "hour": 10,
+        "total_transactions": 2450,
+        "fraud_count": 170,
+        "fraud_rate_pct": 6.939,
+        "ci_95_low_pct": 5.998,
+        "ci_95_high_pct": 8.014,
+        "volume_share_pct": 0.52
+      },
+      {
+        "hour": 11,
+        "total_transactions": 4536,
+        "fraud_count": 179,
+        "fraud_rate_pct": 3.946,
+        "ci_95_low_pct": 3.417,
+        "ci_95_high_pct": 4.553,
+        "volume_share_pct": 0.96
+      },
+      {
+        "hour": 12,
+        "total_transactions": 8733,
+        "fraud_count": 262,
+        "fraud_rate_pct": 3.0,
+        "ci_95_low_pct": 2.663,
+        "ci_95_high_pct": 3.379,
+        "volume_share_pct": 1.85
+      },
+      {
+        "hour": 13,
+        "total_transactions": 14977,
+        "fraud_count": 321,
+        "fraud_rate_pct": 2.143,
+        "ci_95_low_pct": 1.923,
+        "ci_95_high_pct": 2.388,
+        "volume_share_pct": 3.17
+      },
+      {
+        "hour": 14,
+        "total_transactions": 21796,
+        "fraud_count": 534,
+        "fraud_rate_pct": 2.45,
+        "ci_95_low_pct": 2.253,
+        "ci_95_high_pct": 2.664,
+        "volume_share_pct": 4.61
+      },
+      {
+        "hour": 15,
+        "total_transactions": 26616,
+        "fraud_count": 665,
+        "fraud_rate_pct": 2.498,
+        "ci_95_low_pct": 2.318,
+        "ci_95_high_pct": 2.693,
+        "volume_share_pct": 5.63
+      },
+      {
+        "hour": 16,
+        "total_transactions": 30829,
+        "fraud_count": 872,
+        "fraud_rate_pct": 2.829,
+        "ci_95_low_pct": 2.649,
+        "ci_95_high_pct": 3.019,
+        "volume_share_pct": 6.53
+      },
+      {
+        "hour": 17,
+        "total_transactions": 32774,
+        "fraud_count": 1071,
+        "fraud_rate_pct": 3.268,
+        "ci_95_low_pct": 3.081,
+        "ci_95_high_pct": 3.466,
+        "volume_share_pct": 6.94
+      },
+      {
+        "hour": 18,
+        "total_transactions": 33654,
+        "fraud_count": 1179,
+        "fraud_rate_pct": 3.503,
+        "ci_95_low_pct": 3.312,
+        "ci_95_high_pct": 3.705,
+        "volume_share_pct": 7.12
+      },
+      {
+        "hour": 19,
+        "total_transactions": 34155,
+        "fraud_count": 1193,
+        "fraud_rate_pct": 3.493,
+        "ci_95_low_pct": 3.303,
+        "ci_95_high_pct": 3.693,
+        "volume_share_pct": 7.23
+      },
+      {
+        "hour": 20,
+        "total_transactions": 33543,
+        "fraud_count": 1156,
+        "fraud_rate_pct": 3.446,
+        "ci_95_low_pct": 3.256,
+        "ci_95_high_pct": 3.647,
+        "volume_share_pct": 7.1
+      },
+      {
+        "hour": 21,
+        "total_transactions": 33583,
+        "fraud_count": 1131,
+        "fraud_rate_pct": 3.368,
+        "ci_95_low_pct": 3.18,
+        "ci_95_high_pct": 3.566,
+        "volume_share_pct": 7.11
+      },
+      {
+        "hour": 22,
+        "total_transactions": 33051,
+        "fraud_count": 1063,
+        "fraud_rate_pct": 3.216,
+        "ci_95_low_pct": 3.031,
+        "ci_95_high_pct": 3.412,
+        "volume_share_pct": 7.0
+      },
+      {
+        "hour": 23,
+        "total_transactions": 32140,
+        "fraud_count": 1250,
+        "fraud_rate_pct": 3.889,
+        "ci_95_low_pct": 3.683,
+        "ci_95_high_pct": 4.106,
+        "volume_share_pct": 6.8
+      }
+    ],
+    "stakeholder_takeaway": "Transactions during the off-peak night window carry a 1.362x risk multiplier (95% CI: 1.31x \u2013 1.416x) compared to daytime hours. Fraud rings concentrate attacks when manual operations are slowest."
+  },
+  "story_2_email_topology": {
+    "story_name": "Email Topology & The Self-Transfer Anomaly",
+    "total_recipient_flow_transactions": 105969,
+    "self_transfer_stats (P == R)": {
+      "total_transactions": 85848,
+      "fraud_count": 7973,
+      "fraud_rate_pct": 9.287,
+      "ci_95_pct": [
+        9.095,
+        9.483
+      ]
+    },
+    "cross_transfer_stats (P != R)": {
+      "total_transactions": 20121,
+      "fraud_count": 567,
+      "fraud_rate_pct": 2.818,
+      "ci_95_pct": [
+        2.598,
+        3.056
+      ]
+    },
+    "standard_retail_stats (Only P)": {
+      "total_transactions": 292877,
+      "fraud_count": 5864,
+      "fraud_rate_pct": 2.002,
+      "ci_95_pct": [
+        1.952,
+        2.054
+      ]
+    },
+    "self_vs_cross_transfer_risk_ratio": {
+      "risk_ratio": 3.296,
+      "ci_low": 3.031,
+      "ci_high": 3.584
+    },
+    "self_vs_standard_risk_ratio": {
+      "risk_ratio": 4.639,
+      "ci_low": 4.489,
+      "ci_high": 4.793
+    },
+    "top_high_risk_domains": [
+      {
+        "domain": "mail.com",
+        "total_transactions": 452,
+        "fraud_count": 88,
+        "fraud_rate_pct": 19.469,
+        "ci_95_pct": [
+          16.082,
+          23.37
+        ]
+      },
+      {
+        "domain": "aim.com",
+        "total_transactions": 268,
+        "fraud_count": 40,
+        "fraud_rate_pct": 14.925,
+        "ci_95_pct": [
+          11.156,
+          19.686
+        ]
+      },
+      {
+        "domain": "outlook.es",
+        "total_transactions": 377,
+        "fraud_count": 49,
+        "fraud_rate_pct": 12.997,
+        "ci_95_pct": [
+          9.973,
+          16.768
+        ]
+      },
+      {
+        "domain": "outlook.com",
+        "total_transactions": 4080,
+        "fraud_count": 374,
+        "fraud_rate_pct": 9.167,
+        "ci_95_pct": [
+          8.319,
+          10.091
+        ]
+      },
+      {
+        "domain": "hotmail.es",
+        "total_transactions": 239,
+        "fraud_count": 16,
+        "fraud_rate_pct": 6.695,
+        "ci_95_pct": [
+          4.162,
+          10.597
+        ]
+      },
+      {
+        "domain": "hotmail.com",
+        "total_transactions": 37158,
+        "fraud_count": 1933,
+        "fraud_rate_pct": 5.202,
+        "ci_95_pct": [
+          4.981,
+          5.433
+        ]
+      },
+      {
+        "domain": "gmail.com",
+        "total_transactions": 182692,
+        "fraud_count": 8039,
+        "fraud_rate_pct": 4.4,
+        "ci_95_pct": [
+          4.307,
+          4.495
+        ]
+      },
+      {
+        "domain": "embarqmail.com",
+        "total_transactions": 210,
+        "fraud_count": 7,
+        "fraud_rate_pct": 3.333,
+        "ci_95_pct": [
+          1.624,
+          6.719
+        ]
+      }
+    ],
+    "stakeholder_takeaway": "In recipient-designated flows (e.g. digital gift card / remittance), identical purchaser and recipient domains (P==R) exhibit a 9.29% fraud rate vs. 2.82% for genuine cross-party transfers (3.296x risk ratio, 95% CI: 3.031x \u2013 3.584x) and 2.00% for standard retail (4.64x multiplier). This captures automated bot self-purchases and cash-out schemes."
+  },
+  "story_3_amount_zscores": {
+    "story_name": "Card-Level Relative Amount Deviations",
+    "raw_amount_summary": {
+      "legitimate_mean": 133.87,
+      "legitimate_median": 68.5,
+      "fraud_mean": 149.04,
+      "fraud_median": 76.13
+    },
+    "zscore_tiers": [
+      {
+        "tier": "Normal Baseline (z <= 1.0)",
+        "total_transactions": 429258,
+        "fraud_count": 14419,
+        "fraud_rate_pct": 3.359,
+        "ci_95_pct": [
+          3.306,
+          3.413
+        ],
+        "avg_amount": 93.79
+      },
+      {
+        "tier": "Elevated Deviation (1.0 < z <= 3.0)",
+        "total_transactions": 34762,
+        "fraud_count": 1808,
+        "fraud_rate_pct": 5.201,
+        "ci_95_pct": [
+          4.973,
+          5.439
+        ],
+        "avg_amount": 392.0
+      },
+      {
+        "tier": "Extreme Deviation (z > 3.0)",
+        "total_transactions": 8412,
+        "fraud_count": 372,
+        "fraud_rate_pct": 4.422,
+        "ci_95_pct": [
+          4.003,
+          4.883
+        ],
+        "avg_amount": 1142.44
+      }
+    ],
+    "extreme_vs_normal_risk_ratio": {
+      "risk_ratio": 1.317,
+      "ci_low": 1.19,
+      "ci_high": 1.456
+    },
+    "stakeholder_takeaway": "Transactions exceeding 3 standard deviations above their card's historical baseline exhibit a 4.422% fraud rate vs 3.359% at baseline (1.317x risk ratio, 95% CI: 1.19x \u2013 1.456x). Relative entity-level deviation is far more discriminative than rigid global dollar caps."
+  },
+  "story_4_product_channels": {
+    "story_name": "Product Category & Channel Disparities",
+    "product_cd_breakdown": [
+      {
+        "product_cd": "C",
+        "total_transactions": 56410,
+        "fraud_count": 6391,
+        "fraud_rate_pct": 11.33,
+        "ci_95_pct": [
+          11.071,
+          11.594
+        ],
+        "total_fraud_dollar_exposure": 309910.03,
+        "avg_fraud_amount": 48.49
+      },
+      {
+        "product_cd": "H",
+        "total_transactions": 29691,
+        "fraud_count": 1377,
+        "fraud_rate_pct": 4.638,
+        "ci_95_pct": [
+          4.404,
+          4.883
+        ],
+        "total_fraud_dollar_exposure": 218972.0,
+        "avg_fraud_amount": 159.02
+      },
+      {
+        "product_cd": "R",
+        "total_transactions": 32203,
+        "fraud_count": 1169,
+        "fraud_rate_pct": 3.63,
+        "ci_95_pct": [
+          3.431,
+          3.84
+        ],
+        "total_fraud_dollar_exposure": 281200.0,
+        "avg_fraud_amount": 240.55
+      },
+      {
+        "product_cd": "S",
+        "total_transactions": 8127,
+        "fraud_count": 503,
+        "fraud_rate_pct": 6.189,
+        "ci_95_pct": [
+          5.686,
+          6.734
+        ],
+        "total_fraud_dollar_exposure": 35778.0,
+        "avg_fraud_amount": 71.13
+      },
+      {
+        "product_cd": "W",
+        "total_transactions": 346001,
+        "fraud_count": 7159,
+        "fraud_rate_pct": 2.069,
+        "ci_95_pct": [
+          2.022,
+          2.117
+        ],
+        "total_fraud_dollar_exposure": 1628050.5,
+        "avg_fraud_amount": 227.41
+      }
+    ],
+    "card_type_breakdown": [
+      {
+        "card_type": "credit",
+        "total_transactions": 121716,
+        "fraud_count": 8189,
+        "fraud_rate_pct": 6.728,
+        "ci_95_pct": [
+          6.589,
+          6.87
+        ]
+      },
+      {
+        "card_type": "debit",
+        "total_transactions": 349843,
+        "fraud_count": 8386,
+        "fraud_rate_pct": 2.397,
+        "ci_95_pct": [
+          2.347,
+          2.448
+        ]
+      }
+    ],
+    "stakeholder_takeaway": "Product category 'C' shows the highest fraud density (~11.7%), while category 'W' represents the largest absolute dollar fraud volume (>70% of total fraud exposure). Risk controls must balance high-precision rules on category 'C' with high-recall coverage on category 'W'."
+  },
+  "story_5_identity_paradox": {
+    "story_name": "The Identity Capture Paradox",
+    "identity_joined_stats": {
+      "total_transactions": 120464,
+      "coverage_pct": 25.5,
+      "fraud_count": 9099,
+      "fraud_rate_pct": 7.553,
+      "ci_95_pct": [
+        7.405,
+        7.704
+      ]
+    },
+    "no_identity_stats": {
+      "total_transactions": 351968,
+      "coverage_pct": 74.5,
+      "fraud_count": 7500,
+      "fraud_rate_pct": 2.131,
+      "ci_95_pct": [
+        2.084,
+        2.179
+      ]
+    },
+    "identity_vs_noid_risk_ratio": {
+      "risk_ratio": 3.545,
+      "ci_low": 3.44,
+      "ci_high": 3.652
+    },
+    "stakeholder_takeaway": "Transactions with attached identity metadata have a 7.55% fraud rate vs. 2.13% for anonymous flows (3.545x higher risk, 95% CI: 3.44x \u2013 3.652x). Identity capture occurs during high-friction or step-up authentication flows, making metadata presence an informative risk indicator."
+  }
+}

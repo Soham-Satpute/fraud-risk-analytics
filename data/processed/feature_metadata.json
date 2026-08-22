@@ -1,0 +1,154 @@
+{
+  "generated_at": "2026-08-19T11:08:05Z",
+  "total_source_rows": 590540,
+  "temporal_split_cutoff_dt": 12192854,
+  "train_rows": 472432,
+  "test_rows": 118108,
+  "train_fraud_rate": 0.03513521522674162,
+  "test_fraud_rate": 0.034409184813899145,
+  "total_feature_count": 456,
+  "engineered_feature_count": 22,
+  "engineered_features": [
+    "log_TransactionAmt",
+    "amt_diff_mean_card1",
+    "amt_ratio_mean_card1",
+    "amt_zscore_card1",
+    "amt_zscore_card1_addr1",
+    "amt_zscore_email",
+    "hour_sin",
+    "hour_cos",
+    "dow_sin",
+    "dow_cos",
+    "freq_card1",
+    "freq_card2",
+    "freq_card3",
+    "freq_card5",
+    "freq_addr1",
+    "freq_addr2",
+    "freq_ProductCD",
+    "freq_P_emaildomain",
+    "freq_R_emaildomain",
+    "null_P_email",
+    "null_R_email",
+    "email_match_flag"
+  ],
+  "correlation_audit": {
+    "log_TransactionAmt": {
+      "corr_with_isFraud": 0.001,
+      "corr_with_C1": -0.0344,
+      "corr_with_D1": 0.0193
+    },
+    "amt_diff_mean_card1": {
+      "corr_with_isFraud": 0.0196,
+      "corr_with_C1": -0.0046,
+      "corr_with_D1": -0.033
+    },
+    "amt_ratio_mean_card1": {
+      "corr_with_isFraud": 0.0245,
+      "corr_with_C1": -0.0022,
+      "corr_with_D1": -0.0347
+    },
+    "amt_zscore_card1": {
+      "corr_with_isFraud": 0.0298,
+      "corr_with_C1": 0.0003,
+      "corr_with_D1": -0.031
+    },
+    "amt_zscore_card1_addr1": {
+      "corr_with_isFraud": 0.0215,
+      "corr_with_C1": -0.0038,
+      "corr_with_D1": -0.0237
+    },
+    "amt_zscore_email": {
+      "corr_with_isFraud": 0.0123,
+      "corr_with_C1": -0.0185,
+      "corr_with_D1": -0.0337
+    },
+    "hour_sin": {
+      "corr_with_isFraud": 0.0339,
+      "corr_with_C1": 0.0144,
+      "corr_with_D1": -0.0098
+    },
+    "hour_cos": {
+      "corr_with_isFraud": 0.0082,
+      "corr_with_C1": 0.0102,
+      "corr_with_D1": -0.0488
+    },
+    "dow_sin": {
+      "corr_with_isFraud": 0.0012,
+      "corr_with_C1": -0.0341,
+      "corr_with_D1": -0.0097
+    },
+    "dow_cos": {
+      "corr_with_isFraud": 0.0084,
+      "corr_with_C1": 0.0084,
+      "corr_with_D1": -0.0216
+    },
+    "freq_card1": {
+      "corr_with_isFraud": -0.0115,
+      "corr_with_C1": 0.0065,
+      "corr_with_D1": -0.0191
+    },
+    "freq_card2": {
+      "corr_with_isFraud": -0.0388,
+      "corr_with_C1": -0.0139,
+      "corr_with_D1": 0.0429
+    },
+    "freq_card3": {
+      "corr_with_isFraud": -0.1475,
+      "corr_with_C1": -0.1002,
+      "corr_with_D1": 0.1379
+    },
+    "freq_card5": {
+      "corr_with_isFraud": -0.0364,
+      "corr_with_C1": -0.0255,
+      "corr_with_D1": 0.1011
+    },
+    "freq_addr1": {
+      "corr_with_isFraud": -0.0765,
+      "corr_with_C1": -0.0476,
+      "corr_with_D1": 0.0544
+    },
+    "freq_addr2": {
+      "corr_with_isFraud": -0.1583,
+      "corr_with_C1": -0.1064,
+      "corr_with_D1": 0.1368
+    },
+    "freq_ProductCD": {
+      "corr_with_isFraud": -0.1247,
+      "corr_with_C1": -0.0635,
+      "corr_with_D1": 0.2434
+    },
+    "freq_P_emaildomain": {
+      "corr_with_isFraud": 0.0329,
+      "corr_with_C1": 0.0001,
+      "corr_with_D1": -0.0907
+    },
+    "freq_R_emaildomain": {
+      "corr_with_isFraud": 0.1561,
+      "corr_with_C1": 0.0622,
+      "corr_with_D1": -0.1846
+    },
+    "null_P_email": {
+      "corr_with_isFraud": -0.0124,
+      "corr_with_C1": -0.016,
+      "corr_with_D1": 0.1129
+    },
+    "null_R_email": {
+      "corr_with_isFraud": -0.1351,
+      "corr_with_C1": -0.0752,
+      "corr_with_D1": 0.2231
+    },
+    "email_match_flag": {
+      "corr_with_isFraud": 0.1478,
+      "corr_with_C1": 0.0914,
+      "corr_with_D1": -0.1987
+    }
+  },
+  "artifacts": {
+    "train_features_parquet": "train_features.parquet",
+    "train_size_mb": 74.91,
+    "test_features_parquet": "test_features.parquet",
+    "test_size_mb": 19.57,
+    "pipeline_joblib": "feature_pipeline.joblib"
+  }
+}

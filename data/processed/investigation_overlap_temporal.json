@@ -1,0 +1,12 @@
+{
+  "train_unique_entities": 84546,
+  "test_unique_entities": 31775,
+  "overlapping_entities": 21475,
+  "overlap_pct": 67.58,
+  "test_rows_recurring_entity": 103302,
+  "test_rows_new_entity": 14806,
+  "fraud_rate_overall_test": 0.0344,
+  "fraud_rate_recurring_entities": 0.0347,
+  "fraud_rate_new_entities": 0.0323,
+  "split_strategy": "temporal_80_20"
+}
